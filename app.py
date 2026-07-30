@@ -6,7 +6,7 @@ import time
 import os
 import urllib.request
 from fpdf import FPDF
-
+from footer import render_footer
 # ---------------------------------------------------------
 # 1. Hindi Font Download with Shaping Engine Setup
 # ---------------------------------------------------------
@@ -256,3 +256,4 @@ if st.button(btn_text):
             mime="application/pdf"
         )
         st.balloons()
+render_footer()
