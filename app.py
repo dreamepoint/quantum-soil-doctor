@@ -59,7 +59,6 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
-
 st.markdown("<h1>DREAM MERCHANT</h1>", unsafe_allow_html=True)
 st.markdown("<h3>🧬 Quantum AI Soil Doctor v2.5</h3>", unsafe_allow_html=True)
 
