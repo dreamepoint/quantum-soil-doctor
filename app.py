@@ -11,6 +11,19 @@ st.set_page_config(
     layout="centered", 
     initial_sidebar_state="collapsed"
 )
+# 🌐 2. व्हाट्सएप और सोशल मीडिया शेयरिंग के लिए कस्टम मेटा टैग्स (HTML Meta Tags)
+# ध्यान दें: "YOUR_IMAGE_LINK_HERE" की जगह अपनी किसी ऑनलाइन इमेज का लिंक पेस्ट करें
+st.markdown("""
+    <head>
+        <!-- Open Graph / Facebook / WhatsApp -->
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="https://streamlit.app">
+        <meta property="og:title" content="Dream Merchant Quantum AI — Soil Doctor">
+        <meta property="og:description" content="भारतीय किसानों के लिए क्वांटम कंप्यूटर आधारित सॉइल एनालिसिस और सटीक खाद सिमुलेशन पोर्टल।">
+        <meta property="og:image" content="https://raw.githubusercontent.com/dreamepoint/quantum-soil-doctor/refs/heads/main/ogimage.png">
+    </head>
+""", unsafe_allow_html=True)
+
 
 # 🎨 2. Custom CSS for Premium Mobile UI/UX
 st.markdown("""
