@@ -17,7 +17,7 @@ st.markdown("""
     <head>
         <!-- Open Graph / Facebook / WhatsApp -->
         <meta property="og:type" content="website">
-        <meta property="og:url" content="https://streamlit.app">
+        <meta property="og:url" content="https://quantum-soil-doctor.streamlit.app/">
         <meta property="og:title" content="Dream Merchant Quantum AI — Soil Doctor">
         <meta property="og:description" content="भारतीय किसानों के लिए क्वांटम कंप्यूटर आधारित सॉइल एनालिसिस और सटीक खाद सिमुलेशन पोर्टल।">
         <meta property="og:image" content="https://raw.githubusercontent.com/dreamepoint/quantum-soil-doctor/refs/heads/main/ogimage.png">
