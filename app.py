@@ -102,29 +102,29 @@ def generate_pdf_report(crop, n, p, k, ph, n_msg, p_msg, k_msg, ph_msg, is_hi):
     pdf.set_margins(15, 15, 15)
     pdf.add_page()
     
-    # Register Hindi Font
+    # Register Fonts
     pdf.add_font("NotoSans", style="", fname=font_path_regular)
     pdf.set_font("NotoSans", size=10)
     
     # Title
-    pdf.set_font("NotoSans", size=18)
+    pdf.set_font("NotoSans", size=16)
     pdf.set_text_color(30, 58, 138)
-    pdf.cell(180, 10, "DREAM MERCHANT BUSINESS SOLUTION", ln=True, align="C")
+    pdf.cell(180, 8, "DREAM MERCHANT BUSINESS SOLUTION", ln=True, align="C")
     
     # Subtitle
-    pdf.set_font("NotoSans", size=12)
+    pdf.set_font("NotoSans", size=11)
     pdf.set_text_color(16, 185, 129)
     sub_title = "क्वांटम एआई मृदा विश्लेषण एवं सिफारिश कार्ड" if is_hi else "Quantum AI Soil Analysis & Prescription Card"
-    pdf.cell(180, 8, sub_title, ln=True, align="C")
-    pdf.ln(5)
+    pdf.cell(180, 7, sub_title, ln=True, align="C")
+    pdf.ln(4)
     
     # Metadata
-    pdf.set_font("NotoSans", size=10)
+    pdf.set_font("NotoSans", size=9.5)
     pdf.set_text_color(55, 65, 81)
-    pdf.cell(180, 6, f"{'रिपोर्ट आईडी' if is_hi else 'Report ID'}: DM-SOIL-{int(time.time())}", ln=True)
-    pdf.cell(180, 6, f"{'फसल' if is_hi else 'Target Crop'}: {crop}", ln=True)
-    pdf.cell(180, 6, f"{'दिनांक' if is_hi else 'Date'}: {time.strftime('%Y-%m-%d %H:%M:%S')}", ln=True)
-    pdf.ln(5)
+    pdf.cell(180, 5, f"{'रिपोर्ट आईडी' if is_hi else 'Report ID'}: DM-SOIL-{int(time.time())}", ln=True)
+    pdf.cell(180, 5, f"{'फसल' if is_hi else 'Target Crop'}: {crop}", ln=True)
+    pdf.cell(180, 5, f"{'दिनांक' if is_hi else 'Date'}: {time.strftime('%Y-%m-%d %H:%M:%S')}", ln=True)
+    pdf.ln(4)
     
     # Table Header
     pdf.set_fill_color(30, 58, 138)
@@ -135,38 +135,50 @@ def generate_pdf_report(crop, n, p, k, ph, n_msg, p_msg, k_msg, ph_msg, is_hi):
     pdf.cell(col_w, 8, 'आपका स्तर' if is_hi else 'Your Value', border=1, fill=True, align="C")
     pdf.cell(col_w, 8, 'स्थिति (Status)' if is_hi else 'Status', border=1, fill=True, align="C", ln=True)
     
-    # Table Rows
+    # Table Rows Logic Fix (Strict Language Separation)
     pdf.set_fill_color(243, 244, 246)
     pdf.set_text_color(55, 65, 81)
     
-    table_rows = [
-        ['नाइट्रोजन (N)' if is_hi else 'Nitrogen (N)', f'{n} kg/ha', 'अत्यधिक' if n>560 else ('मध्यम' if n>=280 else 'कम')],
-        ['फॉस्फोरस (P)' if is_hi else 'Phosphorus (P)', f'{p} kg/ha', 'पर्याप्त' if p>25 else 'कम'],
-        ['पोटेशियम (K)' if is_hi else 'Potassium (K)', f'{k} kg/ha', 'पर्याप्त' if k>280 else 'कम'],
-        ['मिट्टी का pH' if is_hi else 'Soil pH', f'{ph}', 'क्षारीय' if ph>7.5 else ('अम्लीय' if ph<6.5 else 'उत्तम')]
-    ]
+    if is_hi:
+        table_rows = [
+            ['नाइट्रोजन (N)', f'{n} kg/ha', 'अत्यधिक' if n>560 else ('मध्यम' if n>=280 else 'कम')],
+            ['फॉस्फोरस (P)', f'{p} kg/ha', 'पर्याप्त' if p>25 else 'कम'],
+            ['पोटेशियम (K)', f'{k} kg/ha', 'पर्याप्त' if k>280 else 'कम'],
+            ['मिट्टी का pH', f'{ph}', 'क्षारीय' if ph>7.5 else ('अम्लीय' if ph<6.5 else 'उत्तम')]
+        ]
+    else:
+        table_rows = [
+            ['Nitrogen (N)', f'{n} kg/ha', 'High' if n>560 else ('Medium' if n>=280 else 'Low')],
+            ['Phosphorus (P)', f'{p} kg/ha', 'Optimal' if p>25 else 'Low'],
+            ['Potassium (K)', f'{k} kg/ha', 'Optimal' if k>280 else 'Low'],
+            ['Soil pH', f'{ph}', 'Alkaline' if ph>7.5 else ('Acidic' if ph<6.5 else 'Optimal')]
+        ]
     
     for row in table_rows:
         pdf.cell(col_w, 7, row[0], border=1, fill=True, align="C")
         pdf.cell(col_w, 7, row[1], border=1, fill=True, align="C")
         pdf.cell(col_w, 7, row[2], border=1, fill=True, align="C", ln=True)
         
-    pdf.ln(8)
+    pdf.ln(6)
     
-    # Recommendations (Fixed Width explicitly set to 180mm to avoid overflow)
-    pdf.set_font("NotoSans", size=11)
+    # Recommendations Header
+    pdf.set_font("NotoSans", size=10.5)
     pdf.set_text_color(17, 24, 39)
     pdf.cell(180, 6, "🔬 क्वांटम कंप्यूटर एआई की सिफारिशें:" if is_hi else "🔬 QUANTUM COMPUTER AI RECOMMENDATIONS:", ln=True)
-    pdf.ln(3)
+    pdf.ln(2)
     
-    pdf.set_font("NotoSans", size=9.5)
-    pdf.multi_cell(180, 6, f"• {'नाइट्रोजन व यूरिया' if is_hi else 'Nitrogen & Urea'}: {n_msg}")
-    pdf.multi_cell(180, 6, f"• {'फॉस्फोरस' if is_hi else 'Phosphorus (P)'}: {p_msg}")
-    pdf.multi_cell(180, 6, f"• {'पोटेशियम' if is_hi else 'Potassium (K)'}: {k_msg}")
-    pdf.multi_cell(180, 6, f"• {'मिट्टी pH स्तर' if is_hi else 'Soil pH Level'}: {ph_msg}")
+    # Recommendation Bullet Points (Clean Multi-line spacing)
+    pdf.set_font("NotoSans", size=9)
+    pdf.multi_cell(180, 5, f"• {'नाइट्रोजन व यूरिया' if is_hi else 'Nitrogen & Urea'}: {n_msg}")
+    pdf.ln(1)
+    pdf.multi_cell(180, 5, f"• {'फॉस्फोरस' if is_hi else 'Phosphorus (P)'}: {p_msg}")
+    pdf.ln(1)
+    pdf.multi_cell(180, 5, f"• {'पोटेशियम' if is_hi else 'Potassium (K)'}: {k_msg}")
+    pdf.ln(1)
+    pdf.multi_cell(180, 5, f"• {'मिट्टी pH स्तर' if is_hi else 'Soil pH Level'}: {ph_msg}")
     
     # Footer
-    pdf.ln(10)
+    pdf.ln(8)
     pdf.set_font("NotoSans", size=8)
     pdf.set_text_color(107, 114, 128)
     foot_text = "* यह एक स्वचालित रिपोर्ट है जो IBM क्वांटम सर्किट सिमुलेटर द्वारा तैयार की गई है।" if is_hi else "* Automated report generated via IBM Quantum Circuit Simulators."
