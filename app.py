@@ -86,7 +86,7 @@ if st.button("📊 क्वांटम एआई जांच शुरू क
     circuit = QuantumCircuit(2, 2)
     circuit.ry(angle_N, 0)
     circuit.ry(angle_pH, 1)
-    circuit.measure(,)
+    circuit.measure([0, 1], [0, 1])
 
     simulator = AerSimulator()
     job = simulator.run(circuit, shots=100)
