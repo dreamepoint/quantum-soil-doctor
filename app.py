@@ -18,7 +18,7 @@ st.markdown("""
         <meta property="og:type" content="website">
         <meta property="og:title" content="Dream Merchant Quantum AI — Soil Doctor">
         <meta property="og:description" content="भारतीय किसानों के लिए क्वांटम कंप्यूटर आधारित सॉइल एनालिसिस और सटीक खाद सिमुलेशन पोर्टल।">
-        <meta property="og:image" content="https://raw.githubusercontent.com/dreamepoint/quantum-soil-doctor/refs/heads/main/ogimage.png?token=GHSAT0AAAAAAEEIPVERXYFZEG5AWDH7F3T62TLNURA">
+        <meta property="og:image" content="https://githubusercontent.com">
     </head>
 """, unsafe_allow_html=True)
 
@@ -60,7 +60,7 @@ st.markdown("<h3>🧬 Quantum AI Soil Doctor v2.0</h3>", unsafe_allow_html=True)
 
 # 🌾 Feature 1: Crop Selection Dropdown
 st.markdown("### 🚜 फसल की जानकारी चुनें")
-crop_choice = st.selectbox("आप खेत में कौन सी फसल उगाना चाहते हैं?", ["धान (Rice)", "गेहूं (Wheat)", "कपास (Cotton)"])
+crop_choice = st.selectbox("आप खेत में कौन सी फसल उगाना चाहते हैं?", ["धान (Rice)", "गेहूं (Wheat)", "कпас (Cotton)"])
 
 st.markdown("---")
 st.markdown("### 📊 मिट्टी की जांच रिपोर्ट (NPK & pH)")
@@ -83,12 +83,12 @@ if st.button("🚀 क्वांटम एआई जांच शुरू क
         
     # बैक-एंड क्वांटम सिमुलेशन
     circuit = QuantumCircuit(4, 4)
-    # एनकोडिंग डेटा
+    # एनкоडिंग डेटा
     circuit.ry(np.pi if n_value > 560 else (np.pi/2 if n_value >= 280 else 0), 0)
     circuit.ry(np.pi if p_value > 25 else (np.pi/2 if p_value >= 10 else 0), 1)
     circuit.ry(np.pi if k_value > 280 else (np.pi/2 if k_value >= 108 else 0), 2)
     circuit.ry(np.pi if ph_value > 7.5 else (np.pi/2 if ph_value >= 6.5 else 0), 3)
-    circuit.measure(,[0,1,2,3])
+    circuit.measure([0,1,2,3], [0,1,2,3]) # एरर पूरी तरह ठीक कर दिया गया है
 
     simulator = AerSimulator()
     counts = simulator.run(circuit, shots=100).result().get_counts()
@@ -109,13 +109,13 @@ if st.button("🚀 क्वांटम एआई जांच शुरू क
         recommended_urea = int(base_urea * 1.2)
         st.markdown(f"<div class='custom-card card-info'><b>ℹ️ नाइट्रोजन की भारी कमी है!</b><br><b>{crop_choice}</b> के अच्छे विकास के लिए प्रति एकड़ <b>{recommended_urea} kg यूरिया</b> डालें और साथ में गोबर की जैविक खाद अवश्य मिलाएं।</div>", unsafe_allow_html=True)
         
-    # 2. Feature 2: फॉस्फोरस (P) रिपोर्ट
+    # 2. फॉस्फोरस (P) रिपोर्ट
     if p_value > 25:
         st.markdown("<div class='custom-card card-success'><b>✅ फॉस्फोरस पर्याप्त है।</b><br>जड़ों के विकास के लिए फॉस्फोरस का स्तर उत्तम है, अलग से DAP डालने की आवश्यकता नहीं है।</div>", unsafe_allow_html=True)
     else:
         st.markdown("<div class='custom-card card-warning'><b>⚠️ फॉस्फोरस कम है!</b><br>फसल की जड़ों को मजबूती देने के लिए सिंगल सुपर फॉस्फेट (SSP) या DAP खाद का उचित मात्रा में उपयोग करें।</div>", unsafe_allow_html=True)
 
-    # 3. Feature 2: पोटेशियम (K) रिपोर्ट
+    # 3. पोटेशियम (K) रिपोर्ट
     if k_value > 280:
         st.markdown("<div class='custom-card card-success'><b>✅ पोटेशियम भरपूर है।</b><br>पौधों की रोग प्रतिरोधक क्षमता अच्छी रहेगी। अतिरिक्त पोटाश की जरूरत नहीं है।</div>", unsafe_allow_html=True)
     else:
@@ -129,12 +129,11 @@ if st.button("🚀 क्वांटम एआई जांच शुरू क
     else:
         st.markdown("<div class='custom-card card-success'><b>✅ मिट्टी का pH स्तर उत्तम है!</b><br>आपकी मिट्टी का स्वास्थ्य एकदम न्यूट्रल और फसलों के लिए सर्वोत्तम है।</div>", unsafe_allow_html=True)
 
-    # 🖨️ Feature 3: डिजिटल रसीद डाउनलोड (सिम्युलेटेड प्रिंट बटन जो मोबाइल पर बहुत काम आता है)
+    # 🖨️ डिजिटल रसीद डाउनलोड
     st.markdown("<br>", unsafe_allow_html=True)
-    if st.download_button(
+    st.download_button(
         label="📥 डिजिटल सॉइल कार्ड (PDF) डाउनलोड करें",
         data=f"DREAM MERCHANT QUANTUM AI REPORT\nCrop: {crop_choice}\nInputs - N:{n_value}, P:{p_value}, K:{k_value}, pH:{ph_value}\nStatus: Processed by Quantum Simulator successfully.",
         file_name=f"Soil_Report_DM_{int(time.time())}.txt",
         mime="text/plain"
-    ):
-        st.balloons()
+    )
