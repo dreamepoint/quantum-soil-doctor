@@ -8,7 +8,7 @@ import urllib.request
 from fpdf import FPDF
 
 # ---------------------------------------------------------
-# 1. Hindi Font Download & Configuration
+# 1. Hindi Font Download with Shaping Engine Setup
 # ---------------------------------------------------------
 @st.cache_resource
 def prepare_hindi_fonts():
@@ -64,7 +64,7 @@ st.markdown("<h1>DREAM MERCHANT</h1>", unsafe_allow_html=True)
 st.markdown("<h3>🧬 Quantum AI Soil Doctor v2.5</h3>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# 3. Input Selection
+# 3. Input Selection (Standardized to Acre)
 # ---------------------------------------------------------
 col_lang, col_crop = st.columns(2)
 with col_lang:
@@ -88,42 +88,47 @@ st.markdown("### 📊 " + ("मिट्टी की जांच रिपो�
 
 col1, col2 = st.columns(2)
 with col1:
-    n_value = st.number_input("🌱 " + ("नाइट्रोजन (N) - kg/ha" if is_hindi else "Nitrogen (N) - kg/ha"), min_value=0, value=280, step=10)
-    p_value = st.number_input("🌾 " + ("फॉस्फोरस (P) - kg/ha" if is_hindi else "Phosphorus (P) - kg/ha"), min_value=0, value=15, step=5)
+    n_value = st.number_input("🌱 " + ("नाइट्रोजन (N) - kg/acre" if is_hindi else "Nitrogen (N) - kg/acre"), min_value=0, value=110, step=5)
+    p_value = st.number_input("🌾 " + ("फॉस्फोरस (P) - kg/acre" if is_hindi else "Phosphorus (P) - kg/acre"), min_value=0, value=6, step=2)
 with col2:
-    k_value = st.number_input("🍂 " + ("पोटेशियम (K) - kg/ha" if is_hindi else "Potassium (K) - kg/ha"), min_value=0, value=150, step=10)
+    k_value = st.number_input("🍂 " + ("पोटेशियम (K) - kg/acre" if is_hindi else "Potassium (K) - kg/acre"), min_value=0, value=60, step=5)
     ph_value = st.number_input("🧪 " + ("मिट्टी का pH मान" if is_hindi else "Soil pH Level"), min_value=0.0, max_value=14.0, value=7.0, step=0.1)
 
 # ---------------------------------------------------------
-# 4. Safe PDF Generation Engine
+# 4. Advanced PDF Generation Engine with Text Shaping
 # ---------------------------------------------------------
 def generate_pdf_report(crop, n, p, k, ph, n_msg, p_msg, k_msg, ph_msg, is_hi):
     pdf = FPDF(orientation='P', unit='mm', format='A4')
     pdf.set_margins(15, 15, 15)
     pdf.add_page()
     
-    # Register Fonts
-    pdf.add_font("NotoSans", style="", fname=font_path_regular)
+    # Enable Text Shaping for Hindi (Prevents Matra/Ligature breaking)
+    try:
+        pdf.add_font("NotoSans", style="", fname=font_path_regular)
+        pdf.set_text_shaping(True)
+    except Exception:
+        pass
+        
     pdf.set_font("NotoSans", size=10)
     
     # Title
     pdf.set_font("NotoSans", size=16)
     pdf.set_text_color(30, 58, 138)
-    pdf.cell(180, 8, "DREAM MERCHANT BUSINESS SOLUTION", ln=True, align="C")
+    pdf.cell(180, 8, "DREAM MERCHANT BUSINESS SOLUTION", new_x="LMARGIN", new_y="NEXT", align="C")
     
     # Subtitle
     pdf.set_font("NotoSans", size=11)
     pdf.set_text_color(16, 185, 129)
     sub_title = "क्वांटम एआई मृदा विश्लेषण एवं सिफारिश कार्ड" if is_hi else "Quantum AI Soil Analysis & Prescription Card"
-    pdf.cell(180, 7, sub_title, ln=True, align="C")
+    pdf.cell(180, 7, sub_title, new_x="LMARGIN", new_y="NEXT", align="C")
     pdf.ln(4)
     
     # Metadata
     pdf.set_font("NotoSans", size=9.5)
     pdf.set_text_color(55, 65, 81)
-    pdf.cell(180, 5, f"{'रिपोर्ट आईडी' if is_hi else 'Report ID'}: DM-SOIL-{int(time.time())}", ln=True)
-    pdf.cell(180, 5, f"{'फसल' if is_hi else 'Target Crop'}: {crop}", ln=True)
-    pdf.cell(180, 5, f"{'दिनांक' if is_hi else 'Date'}: {time.strftime('%Y-%m-%d %H:%M:%S')}", ln=True)
+    pdf.cell(180, 5, f"{'रिपोर्ट आईडी' if is_hi else 'Report ID'}: DM-SOIL-{int(time.time())}", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(180, 5, f"{'फसल' if is_hi else 'Target Crop'}: {crop}", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(180, 5, f"{'दिनांक' if is_hi else 'Date'}: {time.strftime('%Y-%m-%d %H:%M:%S')}", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(4)
     
     # Table Header
@@ -133,41 +138,41 @@ def generate_pdf_report(crop, n, p, k, ph, n_msg, p_msg, k_msg, ph_msg, is_hi):
     col_w = 60
     pdf.cell(col_w, 8, 'मापदंड (Parameter)' if is_hi else 'Parameter', border=1, fill=True, align="C")
     pdf.cell(col_w, 8, 'आपका स्तर' if is_hi else 'Your Value', border=1, fill=True, align="C")
-    pdf.cell(col_w, 8, 'स्थिति (Status)' if is_hi else 'Status', border=1, fill=True, align="C", ln=True)
+    pdf.cell(col_w, 8, 'स्थिति (Status)' if is_hi else 'Status', border=1, fill=True, align="C", new_x="LMARGIN", new_y="NEXT")
     
-    # Table Rows Logic Fix (Strict Language Separation)
+    # Table Rows
     pdf.set_fill_color(243, 244, 246)
     pdf.set_text_color(55, 65, 81)
     
     if is_hi:
         table_rows = [
-            ['नाइट्रोजन (N)', f'{n} kg/ha', 'अत्यधिक' if n>560 else ('मध्यम' if n>=280 else 'कम')],
-            ['फॉस्फोरस (P)', f'{p} kg/ha', 'पर्याप्त' if p>25 else 'कम'],
-            ['पोटेशियम (K)', f'{k} kg/ha', 'पर्याप्त' if k>280 else 'कम'],
+            ['नाइट्रोजन (N)', f'{n} kg/acre', 'अत्यधिक' if n>220 else ('मध्यम' if n>=110 else 'कम')],
+            ['फॉस्फोरस (P)', f'{p} kg/acre', 'पर्याप्त' if p>10 else 'कम'],
+            ['पोटेशियम (K)', f'{k} kg/acre', 'पर्याप्त' if k>110 else 'कम'],
             ['मिट्टी का pH', f'{ph}', 'क्षारीय' if ph>7.5 else ('अम्लीय' if ph<6.5 else 'उत्तम')]
         ]
     else:
         table_rows = [
-            ['Nitrogen (N)', f'{n} kg/ha', 'High' if n>560 else ('Medium' if n>=280 else 'Low')],
-            ['Phosphorus (P)', f'{p} kg/ha', 'Optimal' if p>25 else 'Low'],
-            ['Potassium (K)', f'{k} kg/ha', 'Optimal' if k>280 else 'Low'],
+            ['Nitrogen (N)', f'{n} kg/acre', 'High' if n>220 else ('Medium' if n>=110 else 'Low')],
+            ['Phosphorus (P)', f'{p} kg/acre', 'Optimal' if p>10 else 'Low'],
+            ['Potassium (K)', f'{k} kg/acre', 'Optimal' if k>110 else 'Low'],
             ['Soil pH', f'{ph}', 'Alkaline' if ph>7.5 else ('Acidic' if ph<6.5 else 'Optimal')]
         ]
     
     for row in table_rows:
         pdf.cell(col_w, 7, row[0], border=1, fill=True, align="C")
         pdf.cell(col_w, 7, row[1], border=1, fill=True, align="C")
-        pdf.cell(col_w, 7, row[2], border=1, fill=True, align="C", ln=True)
+        pdf.cell(col_w, 7, row[2], border=1, fill=True, align="C", new_x="LMARGIN", new_y="NEXT")
         
     pdf.ln(6)
     
     # Recommendations Header
     pdf.set_font("NotoSans", size=10.5)
     pdf.set_text_color(17, 24, 39)
-    pdf.cell(180, 6, "🔬 क्वांटम कंप्यूटर एआई की सिफारिशें:" if is_hi else "🔬 QUANTUM COMPUTER AI RECOMMENDATIONS:", ln=True)
+    pdf.cell(180, 6, "🔬 क्वांटम कंप्यूटर एआई की सिफारिशें:" if is_hi else "🔬 QUANTUM COMPUTER AI RECOMMENDATIONS:", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(2)
     
-    # Recommendation Bullet Points (Clean Multi-line spacing)
+    # Recommendation Bullet Points
     pdf.set_font("NotoSans", size=9)
     pdf.multi_cell(180, 5, f"• {'नाइट्रोजन व यूरिया' if is_hi else 'Nitrogen & Urea'}: {n_msg}")
     pdf.ln(1)
@@ -187,7 +192,7 @@ def generate_pdf_report(crop, n, p, k, ph, n_msg, p_msg, k_msg, ph_msg, is_hi):
     return bytes(pdf.output())
 
 # ---------------------------------------------------------
-# 5. Quantum Simulation Logic
+# 5. Quantum Simulation Logic & Execution
 # ---------------------------------------------------------
 btn_text = "📊 क्वांटम एआई जांच शुरू करें" if is_hindi else "📊 Start Quantum AI Analysis"
 if st.button(btn_text):
@@ -196,9 +201,9 @@ if st.button(btn_text):
         time.sleep(1.0)
         
         circuit = QuantumCircuit(4, 4)
-        circuit.ry(np.pi if n_value > 560 else (np.pi/2 if n_value >= 280 else 0), 0)
-        circuit.ry(np.pi if p_value > 25 else (np.pi/2 if p_value >= 10 else 0), 1)
-        circuit.ry(np.pi if k_value > 280 else (np.pi/2 if k_value >= 108 else 0), 2)
+        circuit.ry(np.pi if n_value > 220 else (np.pi/2 if n_value >= 110 else 0), 0)
+        circuit.ry(np.pi if p_value > 10 else (np.pi/2 if p_value >= 4 else 0), 1)
+        circuit.ry(np.pi if k_value > 110 else (np.pi/2 if k_value >= 45 else 0), 2)
         circuit.ry(np.pi if ph_value > 7.5 else (np.pi/2 if ph_value >= 6.5 else 0), 3)
         circuit.measure([0,1,2,3], [0,1,2,3])
 
@@ -208,30 +213,30 @@ if st.button(btn_text):
         base_urea = 120 if "धान" in crop_choice or "Rice" in crop_choice else (100 if "गेहूं" in crop_choice or "Wheat" in crop_choice else 150)
         
         if is_hindi:
-            if n_value > 560:
+            if n_value > 220:
                 n_msg = "नाइट्रोजन अत्यधिक है! यूरिया का उपयोग पूरी तरह रोकें।"
-            elif n_value >= 280:
+            elif n_value >= 110:
                 u_dose = int(base_urea * 0.8)
                 n_msg = f"नाइट्रोजन मध्यम है। 20% कम यूरिया का उपयोग करें। अनुशंसित: {u_dose} किग्रा/एकड़।"
             else:
                 u_dose = int(base_urea * 1.2)
                 n_msg = f"नाइट्रोजन की कमी है! प्रति एकड़ {u_dose} किग्रा यूरिया जैविक खाद के साथ दें।"
 
-            p_msg = "फॉस्फोरस का स्तर पर्याप्त है। अतिरिक्त DAP/SSP की आवश्यकता नहीं है।" if p_value > 25 else "फॉस्फोरस कम है। बुवाई के समय SSP या DAP डालें।"
-            k_msg = "पोटेशियम भरपूर है। फसल की रोग प्रतिरोधक क्षमता अच्छी रहेगी।" if k_value > 280 else "पोटेशियम की कमी है! प्रति एकड़ 20 किग्रा MOP का छिड़काव करें।"
+            p_msg = "फॉस्फोरस का स्तर पर्याप्त है। अतिरिक्त DAP/SSP की आवश्यकता नहीं है।" if p_value > 10 else "फॉस्फोरस कम है। बुवाई के समय SSP या DAP डालें।"
+            k_msg = "पोटेशियम भरपूर है। फसल की रोग प्रतिरोधक क्षमता अच्छी रहेगी।" if k_value > 110 else "पोटेशियम की कमी है! प्रति एकड़ 20 किग्रा MOP का छिड़काव करें।"
             ph_msg = "मिट्टी क्षारीय (Alkaline) है। जिप्सम या हरी खाद का प्रयोग करें।" if ph_value > 7.5 else ("मिट्टी अम्लीय (Acidic) है। चूना (Lime) का प्रयोग करें।" if ph_value < 6.5 else "मिट्टी का pH मान बिल्कुल सही है।")
         else:
-            if n_value > 560:
+            if n_value > 220:
                 n_msg = "Nitrogen is extremely high! Stop using Urea completely."
-            elif n_value >= 280:
+            elif n_value >= 110:
                 u_dose = int(base_urea * 0.8)
                 n_msg = f"Nitrogen is medium. Use 20% less urea. Recommended: {u_dose} kg/acre."
             else:
                 u_dose = int(base_urea * 1.2)
                 n_msg = f"Nitrogen deficiency detected! Recommended: {u_dose} kg urea per acre."
 
-            p_msg = "Phosphorus level is optimal. No need for additional DAP/SSP." if p_value > 25 else "Phosphorus is low. Apply SSP or DAP during sowing."
-            k_msg = "Potassium is rich. Plant immunity will be excellent." if k_value > 280 else "Potassium deficiency! Apply 20 kg MOP per acre."
+            p_msg = "Phosphorus level is optimal. No need for additional DAP/SSP." if p_value > 10 else "Phosphorus is low. Apply SSP or DAP during sowing."
+            k_msg = "Potassium is rich. Plant immunity will be excellent." if k_value > 110 else "Potassium deficiency! Apply 20 kg MOP per acre."
             ph_msg = "Soil is Alkaline. Apply Gypsum to normalize pH." if ph_value > 7.5 else ("Soil is Acidic. Apply Lime during field prep." if ph_value < 6.5 else "Soil pH is perfect and neutral.")
 
         st.success("📊 " + ("क्वांटम सिमुलेशन सफलतापूर्वक पूरा हुआ!" if is_hindi else "Quantum simulation completed successfully!"))
