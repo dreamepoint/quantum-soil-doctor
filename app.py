@@ -7,7 +7,7 @@ import os
 import urllib.request
 from fpdf import FPDF
 
-# लोकल मॉड्यूल्स (footer.py और whatsapp_share.py से)
+# लोकल मॉड्यूल्स
 from footer import render_footer
 from whatsapp_share import get_whatsapp_share_url
 
@@ -68,7 +68,7 @@ st.markdown("<h1>DREAM MERCHANT</h1>", unsafe_allow_html=True)
 st.markdown("<h3>🧬 Quantum AI Soil Doctor v2.5</h3>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# 3. Input Selection (Standardized to Acre)
+# 3. Input Selection
 # ---------------------------------------------------------
 col_lang, col_crop = st.columns(2)
 with col_lang:
@@ -114,19 +114,16 @@ def generate_pdf_report(crop, n, p, k, ph, n_msg, p_msg, k_msg, ph_msg, is_hi):
         
     pdf.set_font("NotoSans", size=10)
     
-    # Title
     pdf.set_font("NotoSans", size=16)
     pdf.set_text_color(30, 58, 138)
     pdf.cell(180, 8, "DREAM MERCHANT BUSINESS SOLUTION", new_x="LMARGIN", new_y="NEXT", align="C")
     
-    # Subtitle
     pdf.set_font("NotoSans", size=11)
     pdf.set_text_color(16, 185, 129)
     sub_title = "क्वांटम एआई मृदा विश्लेषण एवं सिफारिश कार्ड" if is_hi else "Quantum AI Soil Analysis & Prescription Card"
     pdf.cell(180, 7, sub_title, new_x="LMARGIN", new_y="NEXT", align="C")
     pdf.ln(4)
     
-    # Metadata
     pdf.set_font("NotoSans", size=9.5)
     pdf.set_text_color(55, 65, 81)
     pdf.cell(180, 5, f"{'रिपोर्ट आईडी' if is_hi else 'Report ID'}: DM-SOIL-{int(time.time())}", new_x="LMARGIN", new_y="NEXT")
@@ -134,7 +131,6 @@ def generate_pdf_report(crop, n, p, k, ph, n_msg, p_msg, k_msg, ph_msg, is_hi):
     pdf.cell(180, 5, f"{'दिनांक' if is_hi else 'Date'}: {time.strftime('%Y-%m-%d %H:%M:%S')}", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(4)
     
-    # Table Header
     pdf.set_fill_color(30, 58, 138)
     pdf.set_text_color(255, 255, 255)
     
@@ -143,7 +139,6 @@ def generate_pdf_report(crop, n, p, k, ph, n_msg, p_msg, k_msg, ph_msg, is_hi):
     pdf.cell(col_w, 8, 'आपका स्तर' if is_hi else 'Your Value', border=1, fill=True, align="C")
     pdf.cell(col_w, 8, 'स्थिति (Status)' if is_hi else 'Status', border=1, fill=True, align="C", new_x="LMARGIN", new_y="NEXT")
     
-    # Table Rows
     pdf.set_fill_color(243, 244, 246)
     pdf.set_text_color(55, 65, 81)
     
@@ -169,13 +164,11 @@ def generate_pdf_report(crop, n, p, k, ph, n_msg, p_msg, k_msg, ph_msg, is_hi):
         
     pdf.ln(6)
     
-    # Recommendations Header
     pdf.set_font("NotoSans", size=10.5)
     pdf.set_text_color(17, 24, 39)
     pdf.cell(180, 6, "🔬 क्वांटम कंप्यूटर एआई की सिफारिशें:" if is_hi else "🔬 QUANTUM COMPUTER AI RECOMMENDATIONS:", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(2)
     
-    # Recommendations List
     pdf.set_font("NotoSans", size=9)
     pdf.multi_cell(180, 5, f"• {'नाइट्रोजन व यूरिया' if is_hi else 'Nitrogen & Urea'}: {n_msg}")
     pdf.ln(1)
@@ -185,7 +178,6 @@ def generate_pdf_report(crop, n, p, k, ph, n_msg, p_msg, k_msg, ph_msg, is_hi):
     pdf.ln(1)
     pdf.multi_cell(180, 5, f"• {'मिट्टी pH स्तर' if is_hi else 'Soil pH Level'}: {ph_msg}")
     
-    # Footer
     pdf.ln(8)
     pdf.set_font("NotoSans", size=8)
     pdf.set_text_color(107, 114, 128)
@@ -198,6 +190,7 @@ def generate_pdf_report(crop, n, p, k, ph, n_msg, p_msg, k_msg, ph_msg, is_hi):
 # 5. Quantum Simulation Logic & Execution
 # ---------------------------------------------------------
 btn_text = "📊 क्वांटम एआई जांच शुरू करें" if is_hindi else "📊 Start Quantum AI Analysis"
+
 if st.button(btn_text):
     spin_text = "🧠 क्वांटम सर्किट और पीडीएफ रिपोर्ट तैयार की जा रही है..." if is_hindi else "🧠 Processing Quantum Circuit & Generating PDF Report..."
     with st.spinner(spin_text):
@@ -242,71 +235,86 @@ if st.button(btn_text):
             k_msg = "Potassium is rich. Plant immunity will be excellent." if k_value > 110 else "Potassium deficiency! Apply 20 kg MOP per acre."
             ph_msg = "Soil is Alkaline. Apply Gypsum to normalize pH." if ph_value > 7.5 else ("Soil is Acidic. Apply Lime during field prep." if ph_value < 6.5 else "Soil pH is perfect and neutral.")
 
-        st.success("📊 " + ("क्वांटम सिमुलेशन सफलतापूर्वक पूरा हुआ!" if is_hindi else "Quantum simulation completed successfully!"))
-        st.markdown(f"## 📋 {'मृदा स्वास्थ्य कार्ड' if is_hindi else 'SOIL HEALTH REPORT'} - {crop_choice}")
-        
-        st.markdown(f"<div class='custom-card card-warning'>🌱 <b>{'नाइट्रोजन' if is_hindi else 'Nitrogen'}:</b> {n_msg}</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='custom-card card-success'>🌾 <b>{'फॉस्फोरस' if is_hindi else 'Phosphorus'}:</b> {p_msg}</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='custom-card card-success'>🍂 <b>{'पोटेशियम' if is_hindi else 'Potassium'}:</b> {k_msg}</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='custom-card card-info'>🧪 <b>{'pH स्तर' if is_hindi else 'pH Level'}:</b> {ph_msg}</div>", unsafe_allow_html=True)
-
-        # PDF बाइट्स और WhatsApp शेयरिंग URL
-        pdf_bytes = generate_pdf_report(crop_choice, n_value, p_value, k_value, ph_value, n_msg, p_msg, k_msg, ph_msg, is_hindi)
-        wa_url = get_whatsapp_share_url(crop_choice, n_value, p_value, k_value, ph_value, n_msg, p_msg, k_msg, ph_msg, is_hindi)
-
-        st.markdown("---")
-        
-        # 🎯 तीन बटन एक ही पंक्ति (Row) में
-        col1, col2, col3 = st.columns(3)
-
-        # 1️⃣ View Report
-        with col1:
-            btn_view_label = "👁️ रिपोर्ट देखें" if is_hindi else "👁️ View"
-            if st.button(btn_view_label, use_container_width=True):
-                st.session_state['show_preview'] = True
-
-        # 2️⃣ Download PDF
-        with col2:
-            btn_dl_label = "📥 डाउनलोड PDF" if is_hindi else "📥 Download"
-            st.download_button(
-                label=btn_dl_label,
-                data=pdf_bytes,
-                file_name=f"Soil_Report_{'HI' if is_hindi else 'EN'}_{int(time.time())}.pdf",
-                mime="application/pdf",
-                use_container_width=True
-            )
-
-        # 3️⃣ WhatsApp Share
-        with col3:
-            btn_wa_label = "📲 व्हाट्सएप" if is_hindi else "📲 Share"
-            st.markdown(f"""
-                <a href="{wa_url}" target="_blank" style="text-decoration: none;">
-                    <div style="
-                        background-color: #25D366;
-                        color: white;
-                        text-align: center;
-                        padding: 8px 0px;
-                        border-radius: 8px;
-                        font-size: 15px;
-                        font-weight: bold;
-                        border: 1px solid #25D366;
-                    ">
-                        {btn_wa_label}
-                    </div>
-                </a>
-            """, unsafe_allow_html=True)
-
-        # 👁️ रिपोर्ट प्रीव्यू (अगर 'रिपोर्ट देखें' बटन दबाया गया हो)
-        if st.session_state.get('show_preview', False):
-            with st.expander("📄 " + ("सॉइल हेल्थ कार्ड प्रीव्यू" if is_hindi else "Soil Health Card Preview"), expanded=True):
-                st.info(f"**{'फसल' if is_hindi else 'Crop'}:** {crop_choice} | **N:** {n_value} | **P:** {p_value} | **K:** {k_value} | **pH:** {ph_value}")
-                st.warning(f"**{'नाइट्रोजन' if is_hindi else 'Nitrogen'}:** {n_msg}")
-                st.success(f"**{'फॉस्फोरस' if is_hindi else 'Phosphorus'}:** {p_msg}\n\n**{'पोटेशियम' if is_hindi else 'Potassium'}:** {k_msg}")
-                st.info(f"**pH:** {ph_msg}")
-
+        # 🔑 परिणाम को State में स्टोर करें (ताकि रीलोड होने पर गायब न हो)
+        st.session_state['results'] = {
+            'crop': crop_choice,
+            'n_msg': n_msg,
+            'p_msg': p_msg,
+            'k_msg': k_msg,
+            'ph_msg': ph_msg,
+            'is_hindi': is_hindi,
+            'pdf_bytes': generate_pdf_report(crop_choice, n_value, p_value, k_value, ph_value, n_msg, p_msg, k_msg, ph_msg, is_hindi),
+            'wa_url': get_whatsapp_share_url(crop_choice, n_value, p_value, k_value, ph_value, n_msg, p_msg, k_msg, ph_msg, is_hindi)
+        }
+        st.session_state['show_preview'] = False
         st.balloons()
 
 # ---------------------------------------------------------
-# 6. Always Render Footer at Bottom
+# 6. Display Results & Action Buttons (State-based)
+# ---------------------------------------------------------
+if 'results' in st.session_state:
+    res = st.session_state['results']
+    is_hi = res['is_hindi']
+
+    st.success("📊 " + ("क्वांटम सिमुलेशन सफलतापूर्वक पूरा हुआ!" if is_hi else "Quantum simulation completed successfully!"))
+    st.markdown(f"## 📋 {'मृदा स्वास्थ्य कार्ड' if is_hi else 'SOIL HEALTH REPORT'} - {res['crop']}")
+    
+    st.markdown(f"<div class='custom-card card-warning'>🌱 <b>{'नाइट्रोजन' if is_hi else 'Nitrogen'}:</b> {res['n_msg']}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='custom-card card-success'>🌾 <b>{'फॉस्फोरस' if is_hi else 'Phosphorus'}:</b> {res['p_msg']}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='custom-card card-success'>🍂 <b>{'पोटेशियम' if is_hi else 'Potassium'}:</b> {res['k_msg']}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='custom-card card-info'>🧪 <b>{'pH स्तर' if is_hi else 'pH Level'}:</b> {res['ph_msg']}</div>", unsafe_allow_html=True)
+
+    st.markdown("---")
+    
+    # Action Buttons
+    col1, col2, col3 = st.columns(3)
+
+    # 1️⃣ View Toggle
+    with col1:
+        btn_view_label = "👁️ रिपोर्ट देखें" if is_hi else "👁️ View"
+        if st.button(btn_view_label, use_container_width=True):
+            st.session_state['show_preview'] = not st.session_state.get('show_preview', False)
+
+    # 2️⃣ Download PDF
+    with col2:
+        btn_dl_label = "📥 डाउनलोड PDF" if is_hi else "📥 Download"
+        st.download_button(
+            label=btn_dl_label,
+            data=res['pdf_bytes'],
+            file_name=f"Soil_Report_{'HI' if is_hi else 'EN'}_{int(time.time())}.pdf",
+            mime="application/pdf",
+            use_container_width=True
+        )
+
+    # 3️⃣ WhatsApp Share
+    with col3:
+        btn_wa_label = "📲 व्हाट्सएप" if is_hi else "📲 Share"
+        st.markdown(f"""
+            <a href="{res['wa_url']}" target="_blank" style="text-decoration: none;">
+                <div style="
+                    background-color: #25D366;
+                    color: white;
+                    text-align: center;
+                    padding: 8px 0px;
+                    border-radius: 8px;
+                    font-size: 15px;
+                    font-weight: bold;
+                    border: 1px solid #25D366;
+                ">
+                    {btn_wa_label}
+                </div>
+            </a>
+        """, unsafe_allow_html=True)
+
+    # 📄 Toggle Preview Box
+    if st.session_state.get('show_preview', False):
+        with st.expander("📄 " + ("सॉइल स्वास्थ्य कार्ड प्रीव्यू" if is_hi else "Soil Health Card Preview"), expanded=True):
+            st.info(f"**{'फसल' if is_hi else 'Crop'}:** {res['crop']} | **N:** {n_value} | **P:** {p_value} | **K:** {k_value} | **pH:** {ph_value}")
+            st.warning(f"**{'नाइट्रोजन' if is_hi else 'Nitrogen'}:** {res['n_msg']}")
+            st.success(f"**{'फॉस्फोरस' if is_hi else 'Phosphorus'}:** {res['p_msg']}\n\n**{'पोटेशियम' if is_hi else 'Potassium'}:** {res['k_msg']}")
+            st.info(f"**pH:** {res['ph_msg']}")
+
+# ---------------------------------------------------------
+# 7. Always Render Footer at Bottom
 # ---------------------------------------------------------
 render_footer()
