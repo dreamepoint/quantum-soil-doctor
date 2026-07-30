@@ -6,9 +6,13 @@ import time
 import os
 import urllib.request
 from fpdf import FPDF
+
+# लोकल मॉड्यूल्स (footer.py और whatsapp_share.py से)
 from footer import render_footer
+from whatsapp_share import get_whatsapp_share_url
+
 # ---------------------------------------------------------
-# 1. Hindi Font Download with Shaping Engine Setup
+# 1. Hindi Font Download Setup
 # ---------------------------------------------------------
 @st.cache_resource
 def prepare_hindi_fonts():
@@ -59,6 +63,7 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+
 st.markdown("<h1>DREAM MERCHANT</h1>", unsafe_allow_html=True)
 st.markdown("<h3>🧬 Quantum AI Soil Doctor v2.5</h3>", unsafe_allow_html=True)
 
@@ -94,14 +99,13 @@ with col2:
     ph_value = st.number_input("🧪 " + ("मिट्टी का pH मान" if is_hindi else "Soil pH Level"), min_value=0.0, max_value=14.0, value=7.0, step=0.1)
 
 # ---------------------------------------------------------
-# 4. Advanced PDF Generation Engine with Text Shaping
+# 4. Advanced PDF Generation Engine
 # ---------------------------------------------------------
 def generate_pdf_report(crop, n, p, k, ph, n_msg, p_msg, k_msg, ph_msg, is_hi):
     pdf = FPDF(orientation='P', unit='mm', format='A4')
     pdf.set_margins(15, 15, 15)
     pdf.add_page()
     
-    # Enable Text Shaping for Hindi (Prevents Matra/Ligature breaking)
     try:
         pdf.add_font("NotoSans", style="", fname=font_path_regular)
         pdf.set_text_shaping(True)
@@ -171,7 +175,7 @@ def generate_pdf_report(crop, n, p, k, ph, n_msg, p_msg, k_msg, ph_msg, is_hi):
     pdf.cell(180, 6, "🔬 क्वांटम कंप्यूटर एआई की सिफारिशें:" if is_hi else "🔬 QUANTUM COMPUTER AI RECOMMENDATIONS:", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(2)
     
-    # Recommendation Bullet Points
+    # Recommendations List
     pdf.set_font("NotoSans", size=9)
     pdf.multi_cell(180, 5, f"• {'नाइट्रोजन व यूरिया' if is_hi else 'Nitrogen & Urea'}: {n_msg}")
     pdf.ln(1)
@@ -246,14 +250,63 @@ if st.button(btn_text):
         st.markdown(f"<div class='custom-card card-success'>🍂 <b>{'पोटेशियम' if is_hindi else 'Potassium'}:</b> {k_msg}</div>", unsafe_allow_html=True)
         st.markdown(f"<div class='custom-card card-info'>🧪 <b>{'pH स्तर' if is_hindi else 'pH Level'}:</b> {ph_msg}</div>", unsafe_allow_html=True)
 
-        # PDF Download
+        # PDF बाइट्स और WhatsApp शेयरिंग URL
         pdf_bytes = generate_pdf_report(crop_choice, n_value, p_value, k_value, ph_value, n_msg, p_msg, k_msg, ph_msg, is_hindi)
+        wa_url = get_whatsapp_share_url(crop_choice, n_value, p_value, k_value, ph_value, n_msg, p_msg, k_msg, ph_msg, is_hindi)
+
+        st.markdown("---")
         
-        st.download_button(
-            label="📥 " + ("ऑफिशियल सॉइल हेल्थ कार्ड (PDF) डाउनलोड करें" if is_hindi else "Download Official Soil Health Card (PDF)"),
-            data=pdf_bytes,
-            file_name=f"Soil_Report_{'HI' if is_hindi else 'EN'}_{int(time.time())}.pdf",
-            mime="application/pdf"
-        )
+        # 🎯 तीन बटन एक ही पंक्ति (Row) में
+        col1, col2, col3 = st.columns(3)
+
+        # 1️⃣ View Report
+        with col1:
+            btn_view_label = "👁️ रिपोर्ट देखें" if is_hindi else "👁️ View"
+            if st.button(btn_view_label, use_container_width=True):
+                st.session_state['show_preview'] = True
+
+        # 2️⃣ Download PDF
+        with col2:
+            btn_dl_label = "📥 डाउनलोड PDF" if is_hindi else "📥 Download"
+            st.download_button(
+                label=btn_dl_label,
+                data=pdf_bytes,
+                file_name=f"Soil_Report_{'HI' if is_hindi else 'EN'}_{int(time.time())}.pdf",
+                mime="application/pdf",
+                use_container_width=True
+            )
+
+        # 3️⃣ WhatsApp Share
+        with col3:
+            btn_wa_label = "📲 व्हाट्सएप" if is_hindi else "📲 Share"
+            st.markdown(f"""
+                <a href="{wa_url}" target="_blank" style="text-decoration: none;">
+                    <div style="
+                        background-color: #25D366;
+                        color: white;
+                        text-align: center;
+                        padding: 8px 0px;
+                        border-radius: 8px;
+                        font-size: 15px;
+                        font-weight: bold;
+                        border: 1px solid #25D366;
+                    ">
+                        {btn_wa_label}
+                    </div>
+                </a>
+            """, unsafe_allow_html=True)
+
+        # 👁️ रिपोर्ट प्रीव्यू (अगर 'रिपोर्ट देखें' बटन दबाया गया हो)
+        if st.session_state.get('show_preview', False):
+            with st.expander("📄 " + ("सॉइल हेल्थ कार्ड प्रीव्यू" if is_hindi else "Soil Health Card Preview"), expanded=True):
+                st.info(f"**{'फसल' if is_hindi else 'Crop'}:** {crop_choice} | **N:** {n_value} | **P:** {p_value} | **K:** {k_value} | **pH:** {ph_value}")
+                st.warning(f"**{'नाइट्रोजन' if is_hindi else 'Nitrogen'}:** {n_msg}")
+                st.success(f"**{'फॉस्फोरस' if is_hindi else 'Phosphorus'}:** {p_msg}\n\n**{'पोटेशियम' if is_hindi else 'Potassium'}:** {k_msg}")
+                st.info(f"**pH:** {ph_msg}")
+
         st.balloons()
+
+# ---------------------------------------------------------
+# 6. Always Render Footer at Bottom
+# ---------------------------------------------------------
 render_footer()
