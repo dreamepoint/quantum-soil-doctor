@@ -7,10 +7,11 @@ import os
 import urllib.request
 from fpdf import FPDF
 
-# लोकल मॉड्यूल्स (footer.py, whatsapp_share.py और guide.py)
+# लोकल मॉड्यूल्स
 from footer import render_footer
 from whatsapp_share import get_whatsapp_share_url
 from guide import render_guide
+from calculator import render_calculator
 
 # ---------------------------------------------------------
 # 1. Hindi Font Download Setup
@@ -77,9 +78,10 @@ with col_lang:
 
 is_hindi = "हिंदी" in report_lang
 
-# App को 2 Tabs में बांटना
-tab_app, tab_guide = st.tabs([
-    "🌾 " + ("सॉइल टेस्ट पोर्टल" if is_hindi else "Soil Test Portal"), 
+# App को 3 Tabs में बांटना
+tab_app, tab_calc, tab_guide = st.tabs([
+    "🌾 " + ("सॉइल टेस्ट पोर्टल" if is_hindi else "Soil Test Portal"),
+    "💰 " + ("खाद एवं बचत कैलकुलेटर" if is_hindi else "Fertilizer Calculator"),
     "📖 " + ("किसान मार्गदर्शिका (Guide)" if is_hindi else "User Guide")
 ])
 
@@ -197,7 +199,6 @@ with tab_app:
         k_value = st.number_input("🍂 " + ("पोटेशियम (K) - kg/acre" if is_hindi else "Potassium (K) - kg/acre"), min_value=0, value=60, step=5)
         ph_value = st.number_input("🧪 " + ("मिट्टी का pH मान" if is_hindi else "Soil pH Level"), min_value=0.0, max_value=14.0, value=7.0, step=0.1)
 
-    # Simulation Trigger Button
     btn_text = "📊 क्वांटम एआई जांच शुरू करें" if is_hindi else "📊 Start Quantum AI Analysis"
 
     if st.button(btn_text):
@@ -262,7 +263,6 @@ with tab_app:
             st.session_state['show_preview'] = False
             st.balloons()
 
-    # Render Results Section from State
     if 'results' in st.session_state:
         res = st.session_state['results']
         is_hi = res['is_hindi']
@@ -277,16 +277,13 @@ with tab_app:
 
         st.markdown("---")
         
-        # Action Buttons Row
         col1, col2, col3 = st.columns(3)
 
-        # 1️⃣ View Toggle
         with col1:
             btn_view_label = "👁️ रिपोर्ट देखें" if is_hi else "👁️ View"
             if st.button(btn_view_label, use_container_width=True):
                 st.session_state['show_preview'] = not st.session_state.get('show_preview', False)
 
-        # 2️⃣ Download PDF
         with col2:
             btn_dl_label = "📥 डाउनलोड PDF" if is_hi else "📥 Download"
             st.download_button(
@@ -297,7 +294,6 @@ with tab_app:
                 use_container_width=True
             )
 
-        # 3️⃣ WhatsApp Share
         with col3:
             btn_wa_label = "📲 व्हाट्सएप" if is_hi else "📲 Share"
             st.markdown(f"""
@@ -317,7 +313,6 @@ with tab_app:
                 </a>
             """, unsafe_allow_html=True)
 
-        # Toggle Preview Box
         if st.session_state.get('show_preview', False):
             with st.expander("📄 " + ("सॉइल स्वास्थ्य कार्ड प्रीव्यू" if is_hi else "Soil Health Card Preview"), expanded=True):
                 st.info(f"**{'फसल' if is_hi else 'Crop'}:** {res['crop']} | **N:** {res['n_val']} | **P:** {res['p_val']} | **K:** {res['k_val']} | **pH:** {res['ph_val']}")
@@ -327,7 +322,14 @@ with tab_app:
 
 
 # =========================================================
-# 📌 TAB 2: किसान मार्गदर्शिका (Guide Tab)
+# 📌 TAB 2: खाद एवं बचत कैलकुलेटर
+# =========================================================
+with tab_calc:
+    render_calculator(is_hindi)
+
+
+# =========================================================
+# 📌 TAB 3: किसान मार्गदर्शिका (Guide Tab)
 # =========================================================
 with tab_guide:
     render_guide(is_hindi)
