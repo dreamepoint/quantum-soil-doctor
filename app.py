@@ -12,12 +12,12 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 🎨 2. Custom CSS for Premium Mobile UI/UX (Parameter Corrected)
+# 🎨 2. Custom CSS for Premium Mobile UI/UX
 st.markdown("""
     <style>
     .main { padding: 10px; }
-    h1 { color: #1E3A8A; font-size: 28px !important; text-align: center; font-weight: bold; margin-bottom: 5px; }
-    h3 { color: #10B981; font-size: 18px !important; text-align: center; margin-top: 0px; margin-bottom: 25px; }
+    h1 { color: #FFFFFF !important; font-size: 28px !important; text-align: center; font-weight: bold; margin-bottom: 5px; }
+    h3 { color: #10B981 !important; font-size: 18px !important; text-align: center; margin-top: 0px; margin-bottom: 25px; }
     
     div.stButton > button:first-child {
         width: 100% !important;
@@ -54,8 +54,7 @@ st.markdown("""
 # 🏢 3. Header Branding
 st.markdown("<h1>DREAM MERCHANT</h1>", unsafe_allow_html=True)
 st.markdown("<h3>🧬 Quantum AI Soil Doctor</h3>", unsafe_allow_html=True)
-
-st.markdown("<p style='text-align: center; color: #6B7280; font-size: 15px;'>भारतीय कृषि को आधुनिक बनाने के लिए क्वांटम कंप्यूटर आधारित सॉइल एनालिसिस पोर्टल।</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #9CA3AF; font-size: 15px;'>भारतीय कृषि को आधुनिक बनाने के लिए क्वांटम कंप्यूटर आधारित सॉइल एनालिसिस पोर्टल।</p>", unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
 
 # 📥 4. Clean Input Form
@@ -92,8 +91,6 @@ if st.button("📊 क्वांटम एआई जांच शुरू क
     if n_value > 560:
         st.markdown("<div class='custom-card card-error'><b>❌ नाइट्रोजन अत्यधिक है!</b><br>यूरिया का उपयोग तुरंत रोकें और केवल नीम-कोटिंग यूरिया ही सीमित मात्रा में डालें। मिट्टी को विश्राम की आवश्यकता है।</div>", unsafe_allow_html=True)
     elif n_value >= 280:
-        st.markdown("<div class='custom-card card-warning'><b>⚠️ नाइट्रोजन मध्यम है।</b><br>नाइट्रोजन का स्तर सामान्य श्रेणी में है। फसल की स्थिति देखकर केवल आवश्यकतानुसार ही हल्की डोज़ दें।</div>", unsafe_style_with_html=True) # यहाँ भी कनवर्ट करना होगा
-        # ऊपर वाली लाइन में टाइपो न रहे इसलिए पूरा ब्लॉक नीचे सुधरा हुआ है:
         st.markdown("<div class='custom-card card-warning'><b>⚠️ नाइट्रोजन मध्यम है।</b><br>नाइट्रोजन का स्तर सामान्य श्रेणी में है। फसल की स्थिति देखकर केवल आवश्यकतानुसार ही हल्की डोज़ दें।</div>", unsafe_allow_html=True)
     else:
         st.markdown("<div class='custom-card card-info'><b>ℹ️ नाइट्रोजन की कमी है!</b><br>मिट्टी की उपजाऊ क्षमता बढ़ाने के लिए रासायनिक खाद के बजाय गोबर की जैविक खाद या केंचुए की खाद (Vermicompost) का प्रयोग करें।</div>", unsafe_allow_html=True)
