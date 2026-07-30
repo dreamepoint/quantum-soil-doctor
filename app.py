@@ -3,32 +3,25 @@ import numpy as np
 from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator
 import time
-import io
-import urllib.request
 import os
+import urllib.request
 from fpdf import FPDF
 
 # ---------------------------------------------------------
-# 1. Hindi Font Download & Configuration (Pure Unicode Support)
+# 1. Hindi Font Download & Configuration
 # ---------------------------------------------------------
-FONT_PATH = "FreeSans.ttf" # ya Devanagari Font
-
 @st.cache_resource
 def prepare_hindi_fonts():
-    # Google Noto Sans Devanagari Font Download
     font_file = "NotoSansDevanagari-Regular.ttf"
-    font_bold_file = "NotoSansDevanagari-Bold.ttf"
-    
     if not os.path.exists(font_file):
         url = "https://github.com/google/fonts/raw/main/ofl/notosansdevanagari/NotoSansDevanagari%5Bwdth%2Cwght%5D.ttf"
         urllib.request.urlretrieve(url, font_file)
-        
     return font_file
 
 font_path_regular = prepare_hindi_fonts()
 
 # ---------------------------------------------------------
-# 2. Streamlit Configuration
+# 2. Streamlit Page Configuration
 # ---------------------------------------------------------
 st.set_page_config(
     page_title="Dream Merchant Quantum AI — Soil Doctor", 
@@ -47,7 +40,7 @@ st.markdown("""
     </head>
 """, unsafe_allow_html=True)
 
-# CSS UI Customization
+# CSS UI Styling
 st.markdown("""
     <style>
     .main { padding: 10px; }
@@ -71,7 +64,7 @@ st.markdown("<h1>DREAM MERCHANT</h1>", unsafe_allow_html=True)
 st.markdown("<h3>🧬 Quantum AI Soil Doctor v2.5</h3>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# 3. Input Controls
+# 3. Input Selection
 # ---------------------------------------------------------
 col_lang, col_crop = st.columns(2)
 with col_lang:
@@ -102,38 +95,35 @@ with col2:
     ph_value = st.number_input("🧪 " + ("मिट्टी का pH मान" if is_hindi else "Soil pH Level"), min_value=0.0, max_value=14.0, value=7.0, step=0.1)
 
 # ---------------------------------------------------------
-# 4. FPDF2 Engine - Perfect Hindi Font Rendering
+# 4. Safe PDF Generation Engine
 # ---------------------------------------------------------
-class PDFReport(FPDF):
-    def header(self):
-        pass
-
 def generate_pdf_report(crop, n, p, k, ph, n_msg, p_msg, k_msg, ph_msg, is_hi):
-    pdf = FPDF()
+    pdf = FPDF(orientation='P', unit='mm', format='A4')
+    pdf.set_margins(15, 15, 15)
     pdf.add_page()
     
-    # Register Devanagari Unicode Font
+    # Register Hindi Font
     pdf.add_font("NotoSans", style="", fname=font_path_regular)
     pdf.set_font("NotoSans", size=10)
     
     # Title
     pdf.set_font("NotoSans", size=18)
     pdf.set_text_color(30, 58, 138)
-    pdf.cell(0, 10, "DREAM MERCHANT BUSINESS SOLUTION", new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf.cell(180, 10, "DREAM MERCHANT BUSINESS SOLUTION", ln=True, align="C")
     
     # Subtitle
     pdf.set_font("NotoSans", size=12)
     pdf.set_text_color(16, 185, 129)
     sub_title = "क्वांटम एआई मृदा विश्लेषण एवं सिफारिश कार्ड" if is_hi else "Quantum AI Soil Analysis & Prescription Card"
-    pdf.cell(0, 8, sub_title, new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf.cell(180, 8, sub_title, ln=True, align="C")
     pdf.ln(5)
     
     # Metadata
     pdf.set_font("NotoSans", size=10)
     pdf.set_text_color(55, 65, 81)
-    pdf.cell(0, 6, f"{'रिपोर्ट आईडी' if is_hi else 'Report ID'}: DM-SOIL-{int(time.time())}", new_x="LMARGIN", new_y="NEXT")
-    pdf.cell(0, 6, f"{'फसल' if is_hi else 'Target Crop'}: {crop}", new_x="LMARGIN", new_y="NEXT")
-    pdf.cell(0, 6, f"{'दिनांक' if is_hi else 'Date'}: {time.strftime('%Y-%m-%d %H:%M:%S')}", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(180, 6, f"{'रिपोर्ट आईडी' if is_hi else 'Report ID'}: DM-SOIL-{int(time.time())}", ln=True)
+    pdf.cell(180, 6, f"{'फसल' if is_hi else 'Target Crop'}: {crop}", ln=True)
+    pdf.cell(180, 6, f"{'दिनांक' if is_hi else 'Date'}: {time.strftime('%Y-%m-%d %H:%M:%S')}", ln=True)
     pdf.ln(5)
     
     # Table Header
@@ -143,9 +133,9 @@ def generate_pdf_report(crop, n, p, k, ph, n_msg, p_msg, k_msg, ph_msg, is_hi):
     col_w = 60
     pdf.cell(col_w, 8, 'मापदंड (Parameter)' if is_hi else 'Parameter', border=1, fill=True, align="C")
     pdf.cell(col_w, 8, 'आपका स्तर' if is_hi else 'Your Value', border=1, fill=True, align="C")
-    pdf.cell(col_w, 8, 'स्थिति (Status)' if is_hi else 'Status', border=1, fill=True, align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(col_w, 8, 'स्थिति (Status)' if is_hi else 'Status', border=1, fill=True, align="C", ln=True)
     
-    # Table Content
+    # Table Rows
     pdf.set_fill_color(243, 244, 246)
     pdf.set_text_color(55, 65, 81)
     
@@ -159,33 +149,33 @@ def generate_pdf_report(crop, n, p, k, ph, n_msg, p_msg, k_msg, ph_msg, is_hi):
     for row in table_rows:
         pdf.cell(col_w, 7, row[0], border=1, fill=True, align="C")
         pdf.cell(col_w, 7, row[1], border=1, fill=True, align="C")
-        pdf.cell(col_w, 7, row[2], border=1, fill=True, align="C", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(col_w, 7, row[2], border=1, fill=True, align="C", ln=True)
         
     pdf.ln(8)
     
-    # Recommendations
+    # Recommendations (Fixed Width explicitly set to 180mm to avoid overflow)
     pdf.set_font("NotoSans", size=11)
     pdf.set_text_color(17, 24, 39)
-    pdf.cell(0, 6, "🔬 क्वांटम कंप्यूटर एआई की सिफारिशें:" if is_hi else "🔬 QUANTUM COMPUTER AI RECOMMENDATIONS:", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(180, 6, "🔬 क्वांटम कंप्यूटर एआई की सिफारिशें:" if is_hi else "🔬 QUANTUM COMPUTER AI RECOMMENDATIONS:", ln=True)
     pdf.ln(3)
     
     pdf.set_font("NotoSans", size=9.5)
-    pdf.multi_cell(0, 6, f"• {'नाइट्रोजन व यूरिया' if is_hi else 'Nitrogen & Urea'}: {n_msg}")
-    pdf.multi_cell(0, 6, f"• {'फॉस्फोरस' if is_hi else 'Phosphorus (P)'}: {p_msg}")
-    pdf.multi_cell(0, 6, f"• {'पोटेशियम' if is_hi else 'Potassium (K)'}: {k_msg}")
-    pdf.multi_cell(0, 6, f"• {'मिट्टी pH स्तर' if is_hi else 'Soil pH Level'}: {ph_msg}")
+    pdf.multi_cell(180, 6, f"• {'नाइट्रोजन व यूरिया' if is_hi else 'Nitrogen & Urea'}: {n_msg}")
+    pdf.multi_cell(180, 6, f"• {'फॉस्फोरस' if is_hi else 'Phosphorus (P)'}: {p_msg}")
+    pdf.multi_cell(180, 6, f"• {'पोटेशियम' if is_hi else 'Potassium (K)'}: {k_msg}")
+    pdf.multi_cell(180, 6, f"• {'मिट्टी pH स्तर' if is_hi else 'Soil pH Level'}: {ph_msg}")
     
     # Footer
     pdf.ln(10)
     pdf.set_font("NotoSans", size=8)
     pdf.set_text_color(107, 114, 128)
     foot_text = "* यह एक स्वचालित रिपोर्ट है जो IBM क्वांटम सर्किट सिमुलेटर द्वारा तैयार की गई है।" if is_hi else "* Automated report generated via IBM Quantum Circuit Simulators."
-    pdf.cell(0, 5, foot_text, align="C")
+    pdf.cell(180, 5, foot_text, align="C")
     
     return bytes(pdf.output())
 
 # ---------------------------------------------------------
-# 5. Quantum Execution Logic & Streamlit App
+# 5. Quantum Simulation Logic
 # ---------------------------------------------------------
 btn_text = "📊 क्वांटम एआई जांच शुरू करें" if is_hindi else "📊 Start Quantum AI Analysis"
 if st.button(btn_text):
@@ -193,7 +183,6 @@ if st.button(btn_text):
     with st.spinner(spin_text):
         time.sleep(1.0)
         
-        # Qiskit Simulation
         circuit = QuantumCircuit(4, 4)
         circuit.ry(np.pi if n_value > 560 else (np.pi/2 if n_value >= 280 else 0), 0)
         circuit.ry(np.pi if p_value > 25 else (np.pi/2 if p_value >= 10 else 0), 1)
@@ -241,7 +230,7 @@ if st.button(btn_text):
         st.markdown(f"<div class='custom-card card-success'>🍂 <b>{'पोटेशियम' if is_hindi else 'Potassium'}:</b> {k_msg}</div>", unsafe_allow_html=True)
         st.markdown(f"<div class='custom-card card-info'>🧪 <b>{'pH स्तर' if is_hindi else 'pH Level'}:</b> {ph_msg}</div>", unsafe_allow_html=True)
 
-        # PDF Output
+        # PDF Download
         pdf_bytes = generate_pdf_report(crop_choice, n_value, p_value, k_value, ph_value, n_msg, p_msg, k_msg, ph_msg, is_hindi)
         
         st.download_button(
