@@ -5,4 +5,4 @@ numpy
 fpdf2
 uharfbuzz
 pillow
-tensorflow-lite-runtime
+tensorflow
