@@ -9,29 +9,49 @@ import requests
 # PlantVillage dataset पर ट्रेन्ड MobileNet V2 AI मॉडल
 HF_API_URL = "https://api-inference.huggingface.co/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease"
 
-# 🔑 अपना Hugging Face Token यहाँ 'Bearer ' के आगे रखें
-# Streamlit Secrets से टोकन लोड करें (GitHub Security Warn नहीं करेगा)
-HF_TOKEN = st.secrets.get("HF_TOKEN", "")
-
 def query_huggingface_api(image_bytes):
     """
     Hugging Face API को इमेज बाइट्स भेजकर रिजल्ट प्राप्त करता है।
     """
+    # Streamlit secrets से टोकन लोड करें
+    token = st.secrets.get("HF_TOKEN", "")
+    
+    headers = {"Content-Type": "application/octet-stream"}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+        
     try:
-        headers = {
-            "Authorization": f"Bearer {HF_TOKEN}",
-            "Content-Type": "application/octet-stream"
-        }
         response = requests.post(
             HF_API_URL, 
             headers=headers, 
             data=image_bytes,
-            timeout=20  # 20 सेकंड टाइमआउट ताकि स्लो नेटवर्क पर भी रिस्पॉन्स आ जाए
+            timeout=25  # टाइमआउट 25 सेकंड
         )
+        
+        # 200 OK -> सब सही है
         if response.status_code == 200:
             return response.json()
+            
+        # यदि मॉडल पहली बार स्टार्ट हो रहा है (Cold Start)
+        elif response.status_code == 503:
+            st.info("ℹ️ AI मॉडल सर्वर एक्टिव हो रहा है (Cold Start)... कृपया 5-10 सेकंड में दोबारा फोटो अपलोड करें।")
+            return None
+            
+        # अगर टोकन में कोई इशू हो
+        elif response.status_code in [401, 403]:
+            st.error("🔑 API Key / Token Error: कृपया Streamlit Secrets में अपना HF_TOKEN जांचें।")
+            return None
+            
+        else:
+            # अन्य किसी स्टेटस कोड पर
+            st.error(f"⚠️ Server Error Code: {response.status_code}")
+            return None
+            
+    except requests.exceptions.Timeout:
+        st.warning("⏱️ टाइमआउट: इंटरनेट स्लो है या सर्वर रिस्पॉन्स में समय ले रहा है।")
         return None
-    except Exception:
+    except Exception as e:
+        st.error(f"⚠️ Connection Error: {str(e)}")
         return None
 
 # ---------------------------------------------------------
@@ -188,6 +208,3 @@ def render_disease_module(is_hindi):
                         st.button("🔊 रिपोर्ट सुनें" if is_hindi else "🔊 Listen Report")
                     with b_col2:
                         st.button("📲 WhatsApp शेयर" if is_hindi else "📲 Share Report", type="primary")
-
-            else:
-                st.warning("⚠️ सर्वर से जुड़ने में समय लग रहा है। कृपया फोटो पुनः अपलोड करें या 5 सेकंड बाद प्रयास करें।")
