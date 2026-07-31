@@ -10,8 +10,8 @@ import requests
 HF_API_URL = "https://api-inference.huggingface.co/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease"
 
 # 🔑 अपना Hugging Face Token यहाँ 'Bearer ' के आगे रखें
-# (उदा. "Bearer hf_abc123xyz...")
-HF_TOKEN = "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" 
+# Streamlit Secrets से टोकन लोड करें (GitHub Security Warn नहीं करेगा)
+HF_TOKEN = st.secrets.get("HF_TOKEN", "")
 
 def query_huggingface_api(image_bytes):
     """
