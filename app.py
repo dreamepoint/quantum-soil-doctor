@@ -1,5 +1,6 @@
 import streamlit as st
 from footer import render_footer
+from insights import render_insights_page
 
 # 1. Page Config
 st.set_page_config(
@@ -44,9 +45,15 @@ report_lang = st.sidebar.selectbox("🌐 भाषा (Language):", ["हिं�
 is_hindi = "हिंदी" in report_lang
 
 st.sidebar.markdown("### 🔍 सेवा चुनें (Select Feature)")
+
+# 🌟 अपडेट: 3rd विकल्प (System Insights) जोड़ा गया
 menu_choice = st.sidebar.radio(
     "",
-    ["🪴 मिट्टी पोषण जांच (Soil Health)", "📸 फसल रोग पहचान (Crop Disease Scanner)"],
+    [
+        "🪴 मिट्टी पोषण जांच (Soil Health)", 
+        "📸 फसल रोग पहचान (Crop Disease Scanner)",
+        "📊 सर्वर स्थिति (System Insights)"
+    ],
     index=0
 )
 
@@ -57,9 +64,12 @@ st.sidebar.info("💡 **AGRIQN Helpline:** +91 9876543210\n\nकिसान क
 if menu_choice == "🪴 मिट्टी पोषण जांच (Soil Health)":
     import soil_health
     soil_health.render_soil_module(is_hindi)
-else:
+elif menu_choice == "📸 फसल रोग पहचान (Crop Disease Scanner)":
     import disease_detector
     disease_detector.render_disease_module(is_hindi)
+else:
+    # 🌟 सिस्टम स्थिति वाला पेज रेंडर होगा
+    render_insights_page(is_hindi)
 
 # 4. Global Footer
 render_footer()
