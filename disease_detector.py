@@ -159,6 +159,7 @@ def render_disease_module(is_hindi):
         with res_col2:
             with st.spinner("🧠 AI क्लाउड मॉडल फोटो का विश्लेषण कर रहा है..." if is_hindi else "🧠 Analyzing image..."):
                 api_results = query_huggingface_api(image_bytes)
+                st.write("🔍 **Hugging Face Raw API Response:**", api_results)
 
             # यदि API से रिस्पॉन्स मिलता है
             if api_results and isinstance(api_results, list) and len(api_results) > 0:
