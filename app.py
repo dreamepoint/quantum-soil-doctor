@@ -22,19 +22,71 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Styling
+# Upgraded Premium Modern Styling
 st.markdown("""
     <style>
-    .main { padding: 10px; }
-    h1 { color: #1E3A8A !important; font-size: 28px !important; text-align: center; font-weight: bold; margin-bottom: 5px; }
-    h3 { color: #10B981 !important; font-size: 18px !important; text-align: center; margin-top: 0px; margin-bottom: 20px; }
-    .custom-card { padding: 15px; border-radius: 12px; margin-bottom: 15px; font-size: 16px; box-shadow: 0px 2px 5px rgba(0,0,0,0.05); }
-    .card-success { background-color: #DCFCE7; border-left: 6px solid #16A34A; color: #14532D; }
-    .card-warning { background-color: #FEF3C7; border-left: 6px solid #D97706; color: #78350F; }
-    .card-error { background-color: #FEE2E2; border-left: 6px solid #DC2626; color: #7F1D1D; }
-    .card-info { background-color: #E0F2FE; border-left: 6px solid #0284C7; color: #0C4A6E; }
-    div.stButton > button:first-child {
-        width: 100% !important; background-color: #10B981 !important; color: white !important;
-        font-size: 18px !important; font-weight: bold !important; padding: 12px 0px !important; border-radius: 12px !important;
+    /* 1. Main Background & Spacing Fix */
+    .main .block-container {
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+        max-width: 1100px;
+    }
+    
+    /* 2. Header Title Styling */
+    h1 {
+        color: #6EE7B7 !important; /* Bright Emerald for Dark Theme */
+        font-size: 36px !important;
+        font-weight: 800 !important;
+        text-align: center;
+        letter-spacing: 1px;
+        margin-bottom: 2px !important;
+    }
+    h3 {
+        color: #3B82F6 !important;
+        font-size: 20px !important;
+        text-align: center;
+        margin-top: 0px !important;
+        margin-bottom: 25px !important;
+    }
+
+    /* 3. Streamlit Native Input Labels Fix */
+    div[data-widget="stNumberInput"] label, div[data-widget="stSelectbox"] label {
+        color: #F3F4F6 !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
+    }
+
+    /* 4. Glassmorphism Card Effect for Form Container */
+    div[data-testid="stForm"] {
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        background: rgba(30, 41, 59, 0.7) !important;
+        border-radius: 16px !important;
+        padding: 25px !important;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
+    }
+
+    /* 5. Full-Width Glowing Primary Button Fix */
+    div.stButton > button:first-child, div[data-testid="stFormSubmitButton"] > button {
+        width: 100% !important;
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
+        color: #FFFFFF !important;
+        font-size: 18px !important;
+        font-weight: 700 !important;
+        padding: 14px 20px !important;
+        border-radius: 12px !important;
+        border: none !important;
+        box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.39) !important;
+        transition: all 0.3s ease !important;
+    }
+    div.stButton > button:first-child:hover, div[data-testid="stFormSubmitButton"] > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px 0 rgba(16, 185, 129, 0.55) !important;
+    }
+
+    /* 6. Sidebar Improvements */
+    section[data-testid="stSidebar"] {
+        background-color: #0F172A !important;
+        border-right: 1px solid rgba(255,255,255,0.05);
     }
     </style>
 """, unsafe_allow_html=True)
