@@ -3,33 +3,39 @@ from PIL import Image
 import requests
 
 # ---------------------------------------------------------
-# 1. Hugging Face Inference API Configuration
+# 1. Hugging Face API Configuration (Dual-Server Fallback)
 # ---------------------------------------------------------
-HF_API_URL = "https://api-inference.huggingface.co/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification"
+# प्राइमरी (Router API) और सेकेंडरी (Inference API) दो endpoints रखे गए हैं
+PRIMARY_URL = "https://router.huggingface.co/hf-inference/v1/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification"
+SECONDARY_URL = "https://api-inference.huggingface.co/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification"
 
 def query_huggingface_api(image_bytes):
     """
-    Hugging Face Inference API को सही Header और Raw Bytes के साथ कॉल करता है।
+    Hugging Face API को कनेक्ट करता है (स्मार्ट बैकअप सर्वर के साथ)।
     """
-    # 1. Streamlit Secrets से टोकन निकालें
     hf_token = st.secrets.get("HF_TOKEN")
     
     if not hf_token:
         st.error("⚠️ Secrets में HF_TOKEN नहीं मिला! कृपया Streamlit Secrets जांचें।")
         return None
 
-    # 2. टोकन को क्लीन करें (अगर ग़लती से स्पेस या न्यूलाइन आ गई हो)
     hf_token = str(hf_token).strip()
-
-    # 3. Content-Type हेडर (400 Bad Request से बचने के लिए)
     headers = {
         "Authorization": f"Bearer {hf_token}",
         "Content-Type": "application/octet-stream"
     }
 
+    # प्रयास 1: Primary Router API
     try:
-        response = requests.post(HF_API_URL, headers=headers, data=image_bytes, timeout=30)
-        
+        response = requests.post(PRIMARY_URL, headers=headers, data=image_bytes, timeout=15)
+        if response.status_code == 200:
+            return response.json()
+    except Exception:
+        pass  # अगर प्राथमिक कनेक्शन में समस्या आती है, तो चुपचाप सेकेंडरी पर स्विच करें
+
+    # प्रयास 2: Backup Secondary API
+    try:
+        response = requests.post(SECONDARY_URL, headers=headers, data=image_bytes, timeout=15)
         if response.status_code == 200:
             return response.json()
         elif response.status_code == 503:
@@ -39,9 +45,8 @@ def query_huggingface_api(image_bytes):
             st.error(f"🚨 Server Error Code: {response.status_code}")
             st.code(response.text)
             return None
-            
     except Exception as e:
-        st.error(f"❌ कनेक्शन त्रुटि: {e}")
+        st.error(f"❌ कनेक्शन त्रुटि: नेटवर्क/सर्वर उपलब्ध नहीं है ({e})")
         return None
 
 # ---------------------------------------------------------
@@ -133,7 +138,7 @@ def render_disease_module(is_hindi=True):
         """)
 
     # ---------------------------------------------------------
-    # 4. Processing Image
+    # 4. Processing Image & Display Results
     # ---------------------------------------------------------
     if uploaded_image is not None and image_bytes is not None:
         st.markdown("---")
