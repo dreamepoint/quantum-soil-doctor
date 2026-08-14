@@ -38,6 +38,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 2. Sidebar Setup
+st.sidebar.image("logo.png", use_container_width=True)
 st.sidebar.markdown("# 🌾 AGRIQN AI")
 st.sidebar.markdown("---")
 
