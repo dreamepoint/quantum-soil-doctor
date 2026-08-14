@@ -30,13 +30,18 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 2. Sidebar Setup
-try:
-    st.sidebar.image("logo_temp1.PNG", width=180)
-except Exception:
-    st.sidebar.title("🌾 AGRIQN")
+# ---------------------------------------------------------
+# 2. SIDEBAR SETUP (Logo Top + Navigation List)
+# ---------------------------------------------------------
+with st.sidebar:
+    # A. Sidebar Top Logo
+    try:
+        st.image("logo_temp1.PNG", use_container_width=True)
+    except Exception:
+        st.title("🌾 AGRIQN AI")
 
-st.sidebar.markdown("---")
+    st.markdown("---")
+
 report_lang = st.sidebar.selectbox("🌐 भाषा (Language):", ["हिंदी (Hindi)", "English"])
 is_hindi = "हिंदी" in report_lang
 
