@@ -41,7 +41,6 @@ st.markdown("""
 
 # 2. Sidebar Setup
 st.sidebar.image("logo_temp1.PNG", width=180)
-st.sidebar.markdown("# 🌾 AGRIQN AI")
 st.sidebar.markdown("---")
 
 report_lang = st.sidebar.selectbox("🌐 भाषा (Language):", ["हिंदी (Hindi)", "English"])
