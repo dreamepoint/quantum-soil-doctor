@@ -2,37 +2,45 @@ import streamlit as st
 from PIL import Image
 import io
 import requests
+import base64
 
 # ---------------------------------------------------------
 # 1. Hugging Face Inference API Configuration
 # ---------------------------------------------------------
-# Hugging Face Router URL
-HF_API_URL = "https://api-inference.huggingface.co/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease"
+# Stable Hugging Face Router URL
+HF_API_URL = "https://router.huggingface.co/hf-inference/v1/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease"
 
 def query_huggingface_api(image_bytes):
     """
-    Hugging Face API को इमेज बाइट्स भेजकर रिजल्ट प्राप्त करता है।
+    Hugging Face Router API को Base64 में कन्वर्ट करके इमेज भेजता है।
     """
     token = st.secrets.get("HF_TOKEN", "")
-    headers = {"Content-Type": "application/octet-stream"}
-    if token:
+    headers = {"Content-Type": "application/json"}
+    
+    if token and str(token).startswith("hf_"):
         headers["Authorization"] = f"Bearer {token}"
         
     try:
+        # 400 Error से बचने के लिए इमेज बाइट्स को base64 में बदलना
+        base64_image = base64.b64encode(image_bytes).decode('utf-8')
+        payload = {
+            "inputs": base64_image
+        }
+
         response = requests.post(
             HF_API_URL, 
             headers=headers, 
-            data=image_bytes,
+            json=payload,
             timeout=25
         )
         
         if response.status_code == 200:
             return response.json()
         elif response.status_code == 503:
-            st.info("ℹ️ AI मॉडल सर्वर एक्टिव हो रहा है (Cold Start)... कृपया 5-10 सेकंड में दोबारा फोटो अपलोड करें।")
+            st.info("ℹ️ AI मॉडल सर्वर लोड हो रहा है... कृपया 5-10 सेकंड में दोबारा प्रयास करें।")
             return None
         elif response.status_code in [401, 403]:
-            st.error("🔑 API Key / Token Error: कृपया Streamlit Secrets में अपना HF_TOKEN जांचें।")
+            st.error("🔑 API Key Error: कृपया Streamlit Secrets में अपना HF_TOKEN जांचें।")
             return None
         else:
             st.error(f"⚠️ Server Error Code: {response.status_code}")
@@ -178,7 +186,7 @@ def render_disease_module(is_hindi):
                     """, unsafe_allow_html=True)
                     
                     st.markdown("### 🧪 संस्तुत उपचार (Treatment Plan)")
-                    tab1, tab2 = st.tabs(["🧪 रासायनिक (Chemical)", "🌿 organic (Organic)"])
+                    tab1, tab2 = st.tabs(["🧪 रासायनिक (Chemical)", "🌿 जैविक (Organic)"])
                     
                     with tab1:
                         st.warning(f"**उपचार:** {chemical_rx}")
