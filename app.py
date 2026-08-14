@@ -7,7 +7,7 @@ import disease_detector
 # 1. Page Config
 st.set_page_config(
     page_title="AGRIQN - Quantum & Crop AI Doctor",
-    page_icon="logo.PNG",  # 👈 यहाँ '🌾' की जगह 'logo.png' लिख दें
+    page_icon="logo.PNG",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -21,7 +21,6 @@ st.markdown("""
     </head>
 """, unsafe_allow_html=True)
 
-# Styling
 # Upgraded Premium Modern Styling
 st.markdown("""
     <style>
@@ -100,15 +99,16 @@ is_hindi = "हिंदी" in report_lang
 
 st.sidebar.markdown("### 🔍 सेवा चुनें (Select Feature)")
 
-# 🌟 3rd विकल्प (System Insights)
+# 🌟 Menu Option Fix: label_visibility="collapsed" जोड़ा गया है ताकि warning न आये
 menu_choice = st.sidebar.radio(
-    "",
-    [
+    label="Navigation Menu",
+    options=[
         "🪴 मिट्टी पोषण जांच (Soil Health)", 
         "📸 फसल रोग पहचान (Crop Disease Scanner)",
         "📊 सर्वर स्थिति (System Insights)"
     ],
-    index=0
+    index=0,
+    label_visibility="collapsed"
 )
 
 st.sidebar.markdown("---")
