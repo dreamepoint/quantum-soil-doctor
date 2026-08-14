@@ -7,7 +7,7 @@ import disease_detector
 # 1. Page Config
 st.set_page_config(
     page_title="AGRIQN - Quantum & Crop AI Doctor",
-    page_icon="logo.PNG",  # 👈 यहाँ '🌾' की जगह 'logo.png' लिख दें
+    page_icon="logo_temp1.PNG",  # 👈 यहाँ '🌾' की जगह 'logo.png' लिख दें
     layout="wide",
     initial_sidebar_state="expanded"
 )
