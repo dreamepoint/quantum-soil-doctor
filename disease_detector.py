@@ -7,12 +7,12 @@ import base64
 # ---------------------------------------------------------
 # 1. Hugging Face Inference API Configuration
 # ---------------------------------------------------------
-# Stable Hugging Face Router URL
+# Hugging Face Router URL
 HF_API_URL = "https://router.huggingface.co/hf-inference/v1/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease"
 
 def query_huggingface_api(image_bytes):
     """
-    Hugging Face Router API को Base64 में कन्वर्ट करके इमेज भेजता है।
+    Hugging Face Router API को Data URL फ़ॉर्मेट में base64 इमेज भेजता है।
     """
     token = st.secrets.get("HF_TOKEN", "")
     headers = {"Content-Type": "application/json"}
@@ -21,10 +21,14 @@ def query_huggingface_api(image_bytes):
         headers["Authorization"] = f"Bearer {token}"
         
     try:
-        # 400 Error से बचने के लिए इमेज बाइट्स को base64 में बदलना
-        base64_image = base64.b64encode(image_bytes).decode('utf-8')
+        # 1. Image Bytes को Base64 में बदलें
+        base64_encoded = base64.b64encode(image_bytes).decode('utf-8')
+        
+        # 2. Data URL prefix जोड़ें (यह 400 Error को रोकेगा)
+        image_data_url = f"data:image/jpeg;base64,{base64_encoded}"
+        
         payload = {
-            "inputs": base64_image
+            "inputs": image_data_url
         }
 
         response = requests.post(
@@ -37,7 +41,7 @@ def query_huggingface_api(image_bytes):
         if response.status_code == 200:
             return response.json()
         elif response.status_code == 503:
-            st.info("ℹ️ AI मॉडल सर्वर लोड हो रहा है... कृपया 5-10 सेकंड में दोबारा प्रयास करें।")
+            st.info("ℹ️ AI मॉडल सर्वर एक्टिव हो रहा है (Cold Start)... कृपया 10 सेकंड में दोबारा फोटो अपलोड करें।")
             return None
         elif response.status_code in [401, 403]:
             st.error("🔑 API Key Error: कृपया Streamlit Secrets में अपना HF_TOKEN जांचें।")
