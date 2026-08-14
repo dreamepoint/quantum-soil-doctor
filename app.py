@@ -60,7 +60,7 @@ menu_choice = st.sidebar.radio(
 )
 
 st.sidebar.markdown("---")
-st.sidebar.info("💡 **AGRIQN Helpline:** \n\n+91 8269967777\n\nकिसान का अपना डिजिटल डॉक्टर।")
+st.sidebar.info("💡 **AGRIQN Helpline:**\n+91 8269967777\n\nकिसान का अपना डिजिटल डॉक्टर।")
 
 # 3. Dynamic Rendering
 if menu_choice == "🪴 मिट्टी पोषण जांच (Soil Health)":
