@@ -6,7 +6,8 @@ from datetime import datetime
 # ---------------------------------------------------------
 # 1. Configuration & Secrets
 # ---------------------------------------------------------
-HF_API_URL = "https://api-inference.huggingface.co/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease"
+# सही एंडपॉइंट URL
+HF_API_URL = "https://router.huggingface.co/hf-inference/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification"
 HF_TOKEN = st.secrets.get("HF_TOKEN", "")
 
 def check_huggingface_status():
@@ -16,23 +17,23 @@ def check_huggingface_status():
     headers = {"Authorization": f"Bearer {HF_TOKEN}"} if HF_TOKEN else {}
     start_time = time.time()
     try:
-        # मॉडल API की उपलब्धता जांचने के लिए डायरेक्ट GET अनुरोध
+        # GET request से HTTP Head/Status चेक करें
         response = requests.get(HF_API_URL, headers=headers, timeout=5)
         latency = round((time.time() - start_time) * 1000, 2)
         
-        # 200, 503 (Model Loading/Cold Start), या 400/401 का अर्थ है कि API सर्वर सक्रिय और ऑन है
+        # 200 (OK), 503 (Model Loading), 400 (Bad Req), या 401 (Auth) का मतलब HF Server जीवित है
         if response.status_code in [200, 503, 400, 401]:
             return True, f"{latency} ms", "100% Operational"
         else:
-            return True, "180 ms", "Operational"
-    except Exception:
-        # नेटवर्क टाइमआउट होने पर फ़ॉलबैक
-        return True, "210 ms", "Operational"
+            return False, f"{latency} ms", f"HTTP {response.status_code}"
+    except Exception as e:
+        # असली नेटवर्क एरर होने पर Offline दिखाए
+        return False, "N/A", "Offline / Network Error"
 
 # ---------------------------------------------------------
 # 2. Main Page Rendering
 # ---------------------------------------------------------
-def render_insights_page(is_hindi):
+def render_insights_page(is_hindi=True):
     title = "📊 AI सिस्टम इंसाइट्स एवं सर्वर स्थिति" if is_hindi else "📊 System Insights & Server Health"
     subtitle = "रियल-टाइम क्लाउड नेटवर्क, AI मॉडल और सिस्टम परफॉर्मेंस की स्थिति।" if is_hindi else "Real-time cloud network, AI engine & system health monitoring."
 
@@ -53,14 +54,15 @@ def render_insights_page(is_hindi):
         st.metric(
             label="🌐 HF Cloud API Status",
             value="🟢 Online" if hf_active else "🔴 Offline",
-            delta=hf_status
+            delta=hf_status,
+            delta_color="normal" if hf_active else "inverse"
         )
 
     with col2:
         st.metric(
             label="⚡ AI Latency (Speed)",
             value=hf_latency,
-            delta="Fast Response"
+            delta="Fast Response" if hf_active else "Timeout"
         )
 
     with col3:
@@ -86,23 +88,26 @@ def render_insights_page(is_hindi):
 
     diag_col1, diag_col2 = st.columns([1.2, 0.8])
 
+    hf_status_icon = "🟢 200 OK" if hf_active else "🔴 Disconnected"
+
     with diag_col1:
-        st.markdown("""
+        st.markdown(f"""
         | सर्विस का नाम (Service) | प्रोटोकॉल | होस्ट सर्वर | स्थिति (Status) |
         | :--- | :--- | :--- | :--- |
-        | **HF MobileNet V2 (Plant Disease)** | HTTPS / REST | Hugging Face Cloud | 🟢 200 OK |
+        | **HF MobileNet V2 (Plant Disease)** | HTTPS / REST | Hugging Face Cloud | {hf_status_icon} |
         | **Quantum Optimizer Engine** | Qiskit Aer | Local/Cloud Virtual Machine | 🟢 Ready |
         | **PDF Generator Engine** | PyFPDF2 / Unicode | Python Runtime | 🟢 Ready |
         | **Streamlit Core UI** | WebSockets | Streamlit Community Cloud | 🟢 Connected |
         """)
 
     with diag_col2:
+        health_score = "100%" if hf_active else "75%"
         st.markdown(f"""
         <div style="background-color: #F0FDF4; border: 1px solid #BBF7D0; padding: 15px; border-radius: 10px;">
-            <h4 style="color: #166534; margin-top:0;">🛡️ सिस्टम हेल्थ स्कोर: 100%</h4>
+            <h4 style="color: #166534; margin-top:0;">🛡️ सिस्टम हेल्थ स्कोर: {health_score}</h4>
             <p style="font-size:14px; color:#15803D;">
-            सभी API एंडपॉइंट्स बिना किसी एरर के काम कर रहे हैं। <br>
-            <b>अंतिम जाँच समय:</b> {datetime.now().strftime('%H:%M:%S IST')}
+            मुख्य API एंडपॉइंट्स मॉनिटर किए जा रहे हैं। <br>
+            <b>अंतिम जाँच समय:</b> {datetime.now().strftime('%H:%M:%S')} (Server Time)
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -128,7 +133,7 @@ def render_insights_page(is_hindi):
     with spec_col2:
         st.success("""
         **⚛️ Quantum Soil Engine**
-        * **Algorithm:** Quantum Approximate Optimization (QAOA) / VQE
+        * **Algorithm:** QAOA / VQE
         * **Qubits:** 4-Qubit Simulator
         * **Target:** N-P-K & pH Soil Ratio Optimization
         """)
