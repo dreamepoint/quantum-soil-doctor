@@ -61,26 +61,6 @@ menu_choice = st.sidebar.radio(
 st.sidebar.markdown("---")
 st.sidebar.info("💡 **AGRIQN Helpline:**\n\n+91 8269967777\n\nकिसान का अपना डिजिटल डॉक्टर।")
 
-# ---------------------------------------------------------
-# 3. MAIN PAGE TOP HEADER (Logo Box & Branding on Top Center)
-# ---------------------------------------------------------
-# Center Alignment के लिए 3 Columns (Side empty, Middle centered)
-col_left, col_center, col_right = st.columns([1, 2, 1])
-
-with col_center:
-    # Logo Picture Centered
-    try:
-        st.image("logo_temp1.PNG", width=180)  # जरूरत के हिसाब से width 150-220 रख सकते हैं
-    except Exception:
-        pass
-    
-    # Text Centered
-    st.markdown(
-        "<h1 style='text-align: center; color: #047857; margin-top: -10px; font-weight: bold;'>AGRIQN AI</h1>", 
-        unsafe_allow_html=True
-    )
-
-st.markdown("---")
 # 3. Dynamic Rendering
 if menu_choice == "🪴 मिट्टी पोषण जांच (Soil Health)":
     if 'soil_health' in globals():
