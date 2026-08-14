@@ -6,16 +6,14 @@ import requests
 # ---------------------------------------------------------
 # 1. Hugging Face Inference API Configuration
 # ---------------------------------------------------------
-# PlantVillage dataset पर ट्रेन्ड MobileNet V2 AI मॉडल
-HF_API_URL = "HF_API_URL = "https://router.huggingface.co/hf-inference/v1/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease"
+# Hugging Face Router URL
+HF_API_URL = "https://router.huggingface.co/hf-inference/v1/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease"
 
 def query_huggingface_api(image_bytes):
     """
     Hugging Face API को इमेज बाइट्स भेजकर रिजल्ट प्राप्त करता है।
     """
-    # Streamlit secrets से टोकन लोड करें
     token = st.secrets.get("HF_TOKEN", "")
-    
     headers = {"Content-Type": "application/octet-stream"}
     if token:
         headers["Authorization"] = f"Bearer {token}"
@@ -25,25 +23,18 @@ def query_huggingface_api(image_bytes):
             HF_API_URL, 
             headers=headers, 
             data=image_bytes,
-            timeout=25  # टाइमआउट 25 सेकंड
+            timeout=25
         )
         
-        # 200 OK -> सब सही है
         if response.status_code == 200:
             return response.json()
-            
-        # यदि मॉडल पहली बार स्टार्ट हो रहा है (Cold Start)
         elif response.status_code == 503:
             st.info("ℹ️ AI मॉडल सर्वर एक्टिव हो रहा है (Cold Start)... कृपया 5-10 सेकंड में दोबारा फोटो अपलोड करें।")
             return None
-            
-        # अगर टोकन में कोई इशू हो
         elif response.status_code in [401, 403]:
             st.error("🔑 API Key / Token Error: कृपया Streamlit Secrets में अपना HF_TOKEN जांचें।")
             return None
-            
         else:
-            # अन्य किसी स्टेटस कोड पर
             st.error(f"⚠️ Server Error Code: {response.status_code}")
             return None
             
@@ -87,22 +78,18 @@ DISEASE_TRANSLATIONS = {
     "Tomato___Tomato_mosaic_virus": ("टमाटर का मोज़ेक वायरस (Mosaic Virus)", "संक्रमित पौधों को उखाड़कर तुरंत नष्ट करें।", "नीम तेल और साबुन के घोल का स्प्रे करें।"),
     "Tomato___healthy": ("टमाटर का पौधा पूरी तरह स्वस्थ है! ✅", "किसी रासायनिक दवा की आवश्यकता नहीं है।", "पंचगव्य का प्रयोग नियमित रूप से करें।"),
 
-    # Pepper Bell (मिर्च)
+    # Pepper Bell
     "Pepper,_bell___Bacterial_spot": ("मिर्च का जीवाणु धब्बा रोग (Bacterial Spot)", "कॉपर ऑक्सीक्लोराइड 3 ग्राम/लीटर पानी में घोलकर छिड़कें।", "स्यूडोमोनास फ्लोरेसेंस 10 ग्राम/लीटर का प्रयोग करें।"),
     "Pepper,_bell___healthy": ("मिर्च का पौधा पूरी तरह स्वस्थ है! ✅", "दवा की आवश्यकता नहीं है।", "जीवामृत का प्रयोग जारी रखें।"),
 
-    # Grape (अंगूर)
+    # Grape
     "Grape___Black_rot": ("अंगूर का ब्लैक रॉट (Black Rot)", "मायक्लोबुटानिल 1 ग्राम/लीटर का स्प्रे करें।", "संक्रमित गुच्छों को नष्ट करें।"),
     "Grape___Esca_(Black_Measles)": ("अंगूर का एस्का रोग (Black Measles)", "टैबुकोनाज़ोल 1 ml/लीटर पानी में स्प्रे करें।", "पौधे के कटे हुए हिस्सों पर बोर्डो पेस्ट लगाएं।"),
     "Grape___healthy": ("अंगूर का पौधा पूरी तरह स्वस्थ है! ✅", "दवा की आवश्यकता नहीं है।", "पंचगव्य दें।")
 }
 
 def clean_label(label_str):
-    """
-    यदि कोई बीमारी डेटाबेस में सीधे न मिले, तो उसके टेक्निकल कोड को साफ़ नाम में बदलता है।
-    """
-    clean = label_str.replace("___", " - ").replace("_", " ").title()
-    return clean
+    return label_str.replace("___", " - ").replace("_", " ").title()
 
 # ---------------------------------------------------------
 # 3. Main UI Module Rendering
@@ -147,7 +134,7 @@ def render_disease_module(is_hindi):
         """)
 
     # ---------------------------------------------------------
-    # 4. Processing Image via Hugging Face Cloud
+    # 4. Processing Image
     # ---------------------------------------------------------
     if uploaded_image is not None and image_bytes is not None:
         st.markdown("---")
@@ -159,16 +146,12 @@ def render_disease_module(is_hindi):
         with res_col2:
             with st.spinner("🧠 AI क्लाउड मॉडल फोटो का विश्लेषण कर रहा है..." if is_hindi else "🧠 Analyzing image..."):
                 api_results = query_huggingface_api(image_bytes)
-                st.write("🔍 **Hugging Face Raw API Response:**", api_results)
 
-            # यदि API से रिस्पॉन्स मिलता है
             if api_results and isinstance(api_results, list) and len(api_results) > 0:
                 top_prediction = api_results[0]
                 label = top_prediction.get("label", "")
                 confidence = float(top_prediction.get("score", 0.0))
 
-                # 🛑 Non-Leaf / Invalid Screenshot Filter:
-                # यदि मॉडल का Confidence Threshold 35% (0.35) से कम है, तो फोटो अवैध है।
                 if confidence < 0.35:
                     st.error("❌ **अवैध फोटो! (Invalid Image)**")
                     st.markdown("""
@@ -180,7 +163,6 @@ def render_disease_module(is_hindi):
                 else:
                     st.success("✅ स्कैन पूरा हुआ!" if is_hindi else "✅ Scan Complete!")
                     
-                    # ट्रांसलेशन या फ़ॉलबैक
                     if label in DISEASE_TRANSLATIONS:
                         hi_name, chemical_rx, organic_rx = DISEASE_TRANSLATIONS[label]
                     else:
@@ -196,16 +178,9 @@ def render_disease_module(is_hindi):
                     """, unsafe_allow_html=True)
                     
                     st.markdown("### 🧪 संस्तुत उपचार (Treatment Plan)")
-                    tab1, tab2 = st.tabs(["🧪 रासायनिक (Chemical)", "🌿 जैविक (Organic)"])
+                    tab1, tab2 = st.tabs(["🧪 रासायनिक (Chemical)", "🌿 organic (Organic)"])
                     
                     with tab1:
                         st.warning(f"**उपचार:** {chemical_rx}")
                     with tab2:
                         st.success(f"**उपचार:** {organic_rx}")
-
-                    st.markdown("---")
-                    b_col1, b_col2 = st.columns(2)
-                    with b_col1:
-                        st.button("🔊 रिपोर्ट सुनें" if is_hindi else "🔊 Listen Report")
-                    with b_col2:
-                        st.button("📲 WhatsApp शेयर" if is_hindi else "📲 Share Report", type="primary")
