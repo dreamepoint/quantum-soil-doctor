@@ -40,7 +40,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 2. Sidebar Setup
-st.sidebar.image("logo.PNG", width=180)
+st.sidebar.image("logo.PNG", width=160)
 st.sidebar.markdown("# 🌾 AGRIQN AI")
 st.sidebar.markdown("---")
 
