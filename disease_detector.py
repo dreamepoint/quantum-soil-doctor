@@ -1,60 +1,47 @@
 import streamlit as st
 from PIL import Image
-import io
 import requests
-import base64
 
 # ---------------------------------------------------------
 # 1. Hugging Face Inference API Configuration
 # ---------------------------------------------------------
-# Hugging Face Router URL
-HF_API_URL = "https://router.huggingface.co/hf-inference/v1/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease"
+HF_API_URL = "https://api-inference.huggingface.co/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification"
 
 def query_huggingface_api(image_bytes):
     """
-    Hugging Face Router API को Data URL फ़ॉर्मेट में base64 इमेज भेजता है।
+    Hugging Face Inference API को सही Header और Raw Bytes के साथ कॉल करता है।
     """
-    token = st.secrets.get("HF_TOKEN", "")
-    headers = {"Content-Type": "application/json"}
+    # 1. Streamlit Secrets से टोकन निकालें
+    hf_token = st.secrets.get("HF_TOKEN")
     
-    if token and str(token).startswith("hf_"):
-        headers["Authorization"] = f"Bearer {token}"
-        
-    try:
-        # 1. Image Bytes को Base64 में बदलें
-        base64_encoded = base64.b64encode(image_bytes).decode('utf-8')
-        
-        # 2. Data URL prefix जोड़ें (यह 400 Error को रोकेगा)
-        image_data_url = f"data:image/jpeg;base64,{base64_encoded}"
-        
-        payload = {
-            "inputs": image_data_url
-        }
+    if not hf_token:
+        st.error("⚠️ Secrets में HF_TOKEN नहीं मिला! कृपया Streamlit Secrets जांचें।")
+        return None
 
-        response = requests.post(
-            HF_API_URL, 
-            headers=headers, 
-            json=payload,
-            timeout=25
-        )
+    # 2. टोकन को क्लीन करें (अगर ग़लती से स्पेस या न्यूलाइन आ गई हो)
+    hf_token = str(hf_token).strip()
+
+    # 3. Content-Type हेडर (400 Bad Request से बचने के लिए)
+    headers = {
+        "Authorization": f"Bearer {hf_token}",
+        "Content-Type": "application/octet-stream"
+    }
+
+    try:
+        response = requests.post(HF_API_URL, headers=headers, data=image_bytes, timeout=30)
         
         if response.status_code == 200:
             return response.json()
         elif response.status_code == 503:
-            st.info("ℹ️ AI मॉडल सर्वर एक्टिव हो रहा है (Cold Start)... कृपया 10 सेकंड में दोबारा फोटो अपलोड करें।")
-            return None
-        elif response.status_code in [401, 403]:
-            st.error("🔑 API Key Error: कृपया Streamlit Secrets में अपना HF_TOKEN जांचें।")
+            st.warning("⏳ मॉडल सर्वर पर लोड हो रहा है, कृपया 10-15 सेकंड बाद पुनः प्रयास करें...")
             return None
         else:
-            st.error(f"⚠️ Server Error Code: {response.status_code}")
+            st.error(f"🚨 Server Error Code: {response.status_code}")
+            st.code(response.text)
             return None
             
-    except requests.exceptions.Timeout:
-        st.warning("⏱️ टाइमआउट: इंटरनेट स्लो है या सर्वर रिस्पॉन्स में समय ले रहा है।")
-        return None
     except Exception as e:
-        st.error(f"⚠️ Connection Error: {str(e)}")
+        st.error(f"❌ कनेक्शन त्रुटि: {e}")
         return None
 
 # ---------------------------------------------------------
@@ -106,7 +93,7 @@ def clean_label(label_str):
 # ---------------------------------------------------------
 # 3. Main UI Module Rendering
 # ---------------------------------------------------------
-def render_disease_module(is_hindi):
+def render_disease_module(is_hindi=True):
     title = "📸 फसल रोग पहचान AI (Cloud API)" if is_hindi else "📸 AI Crop Disease Scanner"
     subtitle = "केवल बीमार पत्ती की फोटो अपलोड करें और तुरंत सटीक निदान पाएं।" if is_hindi else "Upload a leaf photo for instant AI diagnosis."
     
