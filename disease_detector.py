@@ -3,15 +3,14 @@ from PIL import Image
 import requests
 
 # ---------------------------------------------------------
-# 1. Hugging Face API Configuration (Dual-Server Fallback)
+# 1. Hugging Face Inference API Configuration (Updated)
 # ---------------------------------------------------------
-# प्राइमरी (Router API) और सेकेंडरी (Inference API) दो endpoints रखे गए हैं
-PRIMARY_URL = "https://router.huggingface.co/hf-inference/v1/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification"
-SECONDARY_URL = "https://api-inference.huggingface.co/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification"
+# Hugging Face का नया सर्वरलेस इंफरेंस URL
+HF_API_URL = "https://router.huggingface.co/hf-inference/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification"
 
 def query_huggingface_api(image_bytes):
     """
-    Hugging Face API को कनेक्ट करता है (स्मार्ट बैकअप सर्वर के साथ)।
+    Hugging Face Router API को इमेज भेजता है।
     """
     hf_token = st.secrets.get("HF_TOKEN")
     
@@ -20,35 +19,37 @@ def query_huggingface_api(image_bytes):
         return None
 
     hf_token = str(hf_token).strip()
+
+    # सही हेडर (Bearer Token अनिवार्य है)
     headers = {
         "Authorization": f"Bearer {hf_token}",
-        "Content-Type": "application/octet-stream"
+        "Content-Type": "image/jpeg"  # octet-stream के बजाय image/jpeg या image/png
     }
 
-    # प्रयास 1: Primary Router API
     try:
-        response = requests.post(PRIMARY_URL, headers=headers, data=image_bytes, timeout=15)
-        if response.status_code == 200:
-            return response.json()
-    except Exception:
-        pass  # अगर प्राथमिक कनेक्शन में समस्या आती है, तो चुपचाप सेकेंडरी पर स्विच करें
-
-    # प्रयास 2: Backup Secondary API
-    try:
-        response = requests.post(SECONDARY_URL, headers=headers, data=image_bytes, timeout=15)
+        response = requests.post(
+            HF_API_URL, 
+            headers=headers, 
+            data=image_bytes, 
+            timeout=25
+        )
+        
         if response.status_code == 200:
             return response.json()
         elif response.status_code == 503:
             st.warning("⏳ मॉडल सर्वर पर लोड हो रहा है, कृपया 10-15 सेकंड बाद पुनः प्रयास करें...")
             return None
+        elif response.status_code == 404:
+            st.error("🚨 404 Error: मॉडल एंडपॉइंट नहीं मिला। कृपया URL जांचें।")
+            return None
         else:
             st.error(f"🚨 Server Error Code: {response.status_code}")
             st.code(response.text)
             return None
-    except Exception as e:
-        st.error(f"❌ कनेक्शन त्रुटि: नेटवर्क/सर्वर उपलब्ध नहीं है ({e})")
+            
+    except requests.exceptions.RequestException as e:
+        st.error(f"❌ कनेक्शन त्रुटि (Network Error): {e}")
         return None
-
 # ---------------------------------------------------------
 # 2. Disease Translations & Treatment Database
 # ---------------------------------------------------------
