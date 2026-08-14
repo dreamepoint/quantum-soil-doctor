@@ -1,11 +1,13 @@
 import streamlit as st
 from footer import render_footer
 from insights import render_insights_page
+import soil_health
+import disease_detector
 
 # 1. Page Config
 st.set_page_config(
     page_title="AGRIQN - Quantum & Crop AI Doctor",
-    page_icon="🌾",
+    page_icon="logo.png",  # 👈 नया आइकॉन यहाँ लिंक कर दिया गया है
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -47,7 +49,7 @@ is_hindi = "हिंदी" in report_lang
 
 st.sidebar.markdown("### 🔍 सेवा चुनें (Select Feature)")
 
-# 🌟 अपडेट: 3rd विकल्प (System Insights) जोड़ा गया
+# 🌟 3rd विकल्प (System Insights)
 menu_choice = st.sidebar.radio(
     "",
     [
@@ -63,10 +65,8 @@ st.sidebar.info("💡 **AGRIQN Helpline:** +91 9876543210\n\nकिसान क
 
 # 3. Dynamic Rendering
 if menu_choice == "🪴 मिट्टी पोषण जांच (Soil Health)":
-    import soil_health
     soil_health.render_soil_module(is_hindi)
 elif menu_choice == "📸 फसल रोग पहचान (Crop Disease Scanner)":
-    import disease_detector
     disease_detector.render_disease_module(is_hindi)
 else:
     # 🌟 सिस्टम स्थिति वाला पेज रेंडर होगा
