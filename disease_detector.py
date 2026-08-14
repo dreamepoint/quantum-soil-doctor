@@ -7,7 +7,7 @@ import requests
 # 1. Hugging Face Inference API Configuration
 # ---------------------------------------------------------
 # Hugging Face Router URL
-HF_API_URL = "https://router.huggingface.co/hf-inference/v1/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease"
+HF_API_URL = "https://api-inference.huggingface.co/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease"
 
 def query_huggingface_api(image_bytes):
     """
