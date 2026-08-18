@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import streamlit as st
 
 # 1. Page Config
@@ -17,15 +18,21 @@ try:
 except Exception as e:
     st.error(f"⚠️ Import Error: {e}")
 
-# Styling
+# Styling & Hindi Font Fix
 st.markdown("""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap');
+
+    html, body, [class*="css"], [class*="st-"] {
+        font-family: 'Noto Sans Devanagari', sans-serif !important;
+    }
+
     .main .block-container {
-        padding-top: 2rem !important;
+        padding-top: 1rem !important;
         padding-bottom: 2rem !important;
         max-width: 1100px;
     }
-    h1 { color: #6EE7B7 !important; font-size: 36px !important; text-align: center; }
+    h1 { color: #6EE7B7 !important; font-size: 36px !important; }
     section[data-testid="stSidebar"] { background-color: #0F172A !important; }
     </style>
 """, unsafe_allow_html=True)
