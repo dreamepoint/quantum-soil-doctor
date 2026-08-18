@@ -38,37 +38,65 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# 2. SIDEBAR SETUP (Logo Top + Navigation List)
+# 2. SIDEBAR SETUP (Clean & Properly Indented)
 # ---------------------------------------------------------
 with st.sidebar:
     # A. Sidebar Top Logo
     try:
         st.image("logo_temp1.PNG", use_container_width=True)
     except Exception:
-        st.title("🌾 AGRIQN AI")
+        try:
+            st.image("logo.png", use_container_width=True)
+        except Exception:
+            st.title("🌾 AGRIQN AI")
 
     st.markdown("---")
 
-report_lang = st.sidebar.selectbox("🌐 भाषा (Language):", ["हिंदी (Hindi)", "English"])
-is_hindi = "हिंदी" in report_lang
+    # B. Language Selector
+    report_lang = st.selectbox("🌐 भाषा (Language):", ["हिंदी (Hindi)", "English"])
+    is_hindi = "हिंदी" in report_lang
 
-st.sidebar.markdown("### 🔍 सेवा चुनें (Select Feature)")
+    st.markdown("### 🔍 सेवा चुनें (Select Feature)")
 
-menu_choice = st.sidebar.radio(
-    label="Navigation Menu",
-    options=[
-        "🪴 मिट्टी पोषण जांच (Soil Health)", 
-        "📸 फसल रोग पहचान (Crop Disease Scanner)",
-        "📊 सर्वर स्थिति (System Insights)"
-    ],
-    index=0,
-    label_visibility="collapsed"
-)
+    # C. Navigation Menu
+    menu_choice = st.radio(
+        label="Navigation Menu",
+        options=[
+            "🪴 मिट्टी पोषण जांच (Soil Health)", 
+            "📸 फसल रोग पहचान (Crop Disease Scanner)",
+            "📊 सर्वर स्थिति (System Insights)"
+        ],
+        index=0,
+        label_visibility="collapsed"
+    )
 
-st.sidebar.markdown("---")
-st.sidebar.info("💡 **AGRIQN Helpline:**\n\n+91 8269967777\n\nकिसान का अपना डिजिटल डॉक्टर।")
+    st.markdown("---")
+    st.info("💡 **AGRIQN Helpline:**\n\n+91 8269967777\n\nकिसान का अपना डिजिटल डॉक्टर।")
 
-# 3. Dynamic Rendering
+# ---------------------------------------------------------
+# 3. MAIN PAGE HEADER (Centered Logo & Branding)
+# ---------------------------------------------------------
+col_left, col_center, col_right = st.columns([1, 2, 1])
+
+with col_center:
+    try:
+        st.image("logo_temp1.PNG", width=160)
+    except Exception:
+        try:
+            st.image("logo.png", width=160)
+        except Exception:
+            pass
+            
+    st.markdown(
+        "<h2 style='text-align: center; color: #6EE7B7; margin-top: -10px; font-weight: bold;'>AGRIQN AI</h2>", 
+        unsafe_allow_html=True
+    )
+
+st.markdown("---")
+
+# ---------------------------------------------------------
+# 4. DYNAMIC MODULE RENDERING
+# ---------------------------------------------------------
 if menu_choice == "🪴 मिट्टी पोषण जांच (Soil Health)":
     if 'soil_health' in globals():
         soil_health.render_soil_module(is_hindi)
@@ -79,6 +107,8 @@ else:
     if 'render_insights_page' in globals():
         render_insights_page(is_hindi)
 
-# 4. Global Footer
+# ---------------------------------------------------------
+# 5. GLOBAL FOOTER
+# ---------------------------------------------------------
 if 'render_footer' in globals():
     render_footer()
