@@ -22,9 +22,29 @@ except Exception as e:
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined');
 
+    /* देवनागरी फॉन्ट को पूरे ऐप पर लागू करें */
     html, body, [class*="css"], [class*="st-"] {
         font-family: 'Noto Sans Devanagari', sans-serif !important;
+    }
+
+    /* 1. साइडबार के आइकन फॉन्ट को सुरक्षित रखें ताकि अनचाहा टेक्स्ट न दिखे */
+    [class*="st-"] button span,
+    [data-testid="stSidebarCollapseButton"] *,
+    [data-testid="stSidebarNav"] span,
+    .material-symbols-outlined {
+        font-family: 'Material Symbols Outlined', 'Material Icons' !important;
+    }
+
+    /* 2. बैकअप सुरक्षा: अगर फिर भी आइकन लोड न हो तो साइडबार बटन का एक्स्ट्रा टेक्स्ट छुपाएं */
+    button[aria-label="Collapse sidebar"] span,
+    button[aria-label="Expand sidebar"] span {
+        font-size: 0px !important;
+    }
+    button[aria-label="Collapse sidebar"]::before,
+    button[aria-label="Expand sidebar"]::before {
+        font-size: 16px !important;
     }
 
     .main .block-container {
