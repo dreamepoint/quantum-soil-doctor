@@ -32,16 +32,16 @@ st.markdown("""
         padding-bottom: 2rem !important;
         max-width: 1100px;
     }
-    h1 { color: #6EE7B7 !important; font-size: 36px !important; }
+    h1 { color: #6EE7B7 !important; font-size: 32px !important; }
     section[data-testid="stSidebar"] { background-color: #0F172A !important; }
     </style>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# 2. SIDEBAR SETUP (Clean & Properly Indented)
+# 2. SIDEBAR SETUP
 # ---------------------------------------------------------
 with st.sidebar:
-    # A. Sidebar Top Logo
+    # Top Logo in Sidebar
     try:
         st.image("logo_temp1.PNG", use_container_width=True)
     except Exception:
@@ -52,13 +52,13 @@ with st.sidebar:
 
     st.markdown("---")
 
-    # B. Language Selector
+    # Language Selector
     report_lang = st.selectbox("🌐 भाषा (Language):", ["हिंदी (Hindi)", "English"])
     is_hindi = "हिंदी" in report_lang
 
     st.markdown("### 🔍 सेवा चुनें (Select Feature)")
 
-    # C. Navigation Menu
+    # Navigation Menu
     menu_choice = st.radio(
         label="Navigation Menu",
         options=[
@@ -74,28 +74,7 @@ with st.sidebar:
     st.info("💡 **AGRIQN Helpline:**\n\n+91 8269967777\n\nकिसान का अपना डिजिटल डॉक्टर।")
 
 # ---------------------------------------------------------
-# 3. MAIN PAGE HEADER (Centered Logo & Branding)
-# ---------------------------------------------------------
-col_left, col_center, col_right = st.columns([1, 2, 1])
-
-with col_center:
-    try:
-        st.image("logo_temp1.PNG", width=160)
-    except Exception:
-        try:
-            st.image("logo.png", width=160)
-        except Exception:
-            pass
-            
-    st.markdown(
-        "<h2 style='text-align: center; color: #6EE7B7; margin-top: -10px; font-weight: bold;'>AGRIQN AI</h2>", 
-        unsafe_allow_html=True
-    )
-
-st.markdown("---")
-
-# ---------------------------------------------------------
-# 4. DYNAMIC MODULE RENDERING
+# 3. DYNAMIC MODULE RENDERING
 # ---------------------------------------------------------
 if menu_choice == "🪴 मिट्टी पोषण जांच (Soil Health)":
     if 'soil_health' in globals():
@@ -108,7 +87,7 @@ else:
         render_insights_page(is_hindi)
 
 # ---------------------------------------------------------
-# 5. GLOBAL FOOTER
+# 4. GLOBAL FOOTER
 # ---------------------------------------------------------
 if 'render_footer' in globals():
     render_footer()
