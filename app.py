@@ -15,6 +15,7 @@ try:
     from insights import render_insights_page
     import soil_health
     import disease_detector
+    import agri_stores
 except Exception as e:
     st.error(f"⚠️ Import Error: {e}")
 
@@ -84,6 +85,7 @@ with st.sidebar:
         options=[
             "🪴 मिट्टी पोषण जांच (Soil Health)", 
             "📸 फसल रोग पहचान (Crop Disease Scanner)",
+            "🏪 प्रमाणित कृषि दुकानें (Agri Stores)",  # <--- नया फ़ीचर
             "📊 सर्वर स्थिति (System Insights)"
         ],
         index=0,
@@ -105,6 +107,9 @@ elif menu_choice == "📸 फसल रोग पहचान (Crop Disease Scan
 else:
     if 'render_insights_page' in globals():
         render_insights_page(is_hindi)
+
+elif menu_choice == "🏪 प्रमाणित कृषि दुकानें (Agri Stores)":
+    agri_stores.render_store_locator_module(is_hindi)
 
 # ---------------------------------------------------------
 # 4. GLOBAL FOOTER
