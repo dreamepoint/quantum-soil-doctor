@@ -96,21 +96,23 @@ with st.sidebar:
     st.info("💡 **AGRIQN Helpline:**\n\n+91 8269967777\n\nकिसान का अपना डिजिटल डॉक्टर।")
 
 # ---------------------------------------------------------
-# 3. DYNAMIC MODULE RENDERING
+# 3. DYNAMIC MODULE RENDERING (Corrected Order)
 # ---------------------------------------------------------
 if menu_choice == "🪴 मिट्टी पोषण जांच (Soil Health)":
     if 'soil_health' in globals():
         soil_health.render_soil_module(is_hindi)
+
 elif menu_choice == "📸 फसल रोग पहचान (Crop Disease Scanner)":
     if 'disease_detector' in globals():
         disease_detector.render_disease_module(is_hindi)
+
+elif menu_choice == "🏪 प्रमाणित कृषि दुकानें (Agri Stores)":
+    if 'agri_stores' in globals():
+        agri_stores.render_store_locator_module(is_hindi)
+
 else:
     if 'render_insights_page' in globals():
         render_insights_page(is_hindi)
-
-elif menu_choice == "🏪 प्रमाणित कृषि दुकानें (Agri Stores)":
-    agri_stores.render_store_locator_module(is_hindi)
-
 # ---------------------------------------------------------
 # 4. GLOBAL FOOTER
 # ---------------------------------------------------------
